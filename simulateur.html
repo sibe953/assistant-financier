@@ -6,49 +6,47 @@
     <title>Simulateur Financier</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f7fa; margin: 0; padding: 20px; }
-        .card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 900px; margin: 20px auto; }
-        input, button { padding: 12px; margin: 8px 0; border-radius: 8px; }
-        button { background: #1e40af; color: white; border: none; font-size: 1.1rem; cursor: pointer; }
-        button:hover { background: #2e50c0; }
-        #results { display: none; }
+        body { font-family: Arial, sans-serif; background: #f4f7fa; padding: 20px; }
+        .card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 1000px; margin: 20px auto; }
+        input { padding: 10px; width: 100%; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; }
+        button { background: #1e40af; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; width: 100%; margin-top: 15px; }
+        #results { display: none; margin-top: 20px; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h1>Simulateur Financier</h1>
+        <h1>Simulateur Financier Avancé</h1>
         
-        <label>Âge actuel :</label>
-        <input type="number" id="age" value="38"><br>
+        <label>Âge :</label>
+        <input type="number" id="age" value="52">
         
-        <label>Revenu annuel ($) :</label>
-        <input type="number" id="income" value="145000"><br>
+        <label>Revenu ménage ($) :</label>
+        <input type="number" id="income" value="140000">
         
         <label>Dépenses annuelles ($) :</label>
-        <input type="number" id="expenses" value="92000"><br>
+        <input type="number" id="expenses" value="12000">
         
         <label>Épargne actuelle ($) :</label>
-        <input type="number" id="savings" value="85000"><br>
+        <input type="number" id="savings" value="1200">
         
         <label>Épargne mensuelle ($) :</label>
-        <input type="number" id="monthly" value="1800"><br>
+        <input type="number" id="monthly" value="1000">
         
-        <button onclick="calculer()">Lancer le calcul</button>
+        <button onclick="lancerSimulation()">Lancer l'analyse complète</button>
     </div>
 
     <div id="results" class="card">
         <h2>Résultats</h2>
         <div id="output"></div>
-        <canvas id="myChart" height="120"></canvas>
+        <canvas id="chart" height="180"></canvas>
     </div>
 
     <script>
-        let chart;
-        function calculer() {
-            const age = parseFloat(document.getElementById('age').value);
-            const expenses = parseFloat(document.getElementById('expenses').value);
-            const savings = parseFloat(document.getElementById('savings').value);
-            const monthly = parseFloat(document.getElementById('monthly').value);
+        function lancerSimulation() {
+            const age = parseFloat(document.getElementById('age').value) || 52;
+            const expenses = parseFloat(document.getElementById('expenses').value) || 12000;
+            const savings = parseFloat(document.getElementById('savings').value) || 1200;
+            const monthly = parseFloat(document.getElementById('monthly').value) || 1000;
             
             const annualSave = monthly * 12;
             let capital = savings;
@@ -59,29 +57,31 @@
                 years++;
             }
             
-            const fiAge = age + years;
+            const fiAge = Math.round(age + years);
             
             document.getElementById('output').innerHTML = `
-                <p><strong>Âge d'indépendance financière estimé :</strong> ${fiAge} ans</p>
-                <p><strong>Patrimoine à 65 ans :</strong> ${(capital/1000000).toFixed(2)} M$</p>
-                <p><strong>Taux d'épargne :</strong> ${Math.round((annualSave / parseFloat(document.getElementById('income').value)) * 100)} %</p>
+                <p><strong>Âge d'indépendance financière :</strong> ${fiAge} ans</p>
+                <p><strong>Patrimoine estimé :</strong> ${(capital / 1000000).toFixed(2)} M$</p>
+                <p><strong>Taux d'épargne :</strong> ${Math.round((annualSave / 140000) * 100)}%</p>
             `;
             
             document.getElementById('results').style.display = 'block';
             
             // Graphique
-            const ctx = document.getElementById('myChart');
-            if (chart) chart.destroy();
-            chart = new Chart(ctx, {
+            const ctx = document.getElementById('chart');
+            if (window.myChart) window.myChart.destroy();
+            window.myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: Array.from({length: years+5}, (_, i) => age + i),
+                    labels: Array.from({length: 20}, (_, i) => age + i),
                     datasets: [{
-                        label: 'Patrimoine ($)',
-                        data: Array.from({length: years+5}, (_, i) => Math.round(savings * Math.pow(1.065, i) + annualSave * i)),
-                        borderColor: '#1e40af'
+                        label: 'Évolution du patrimoine',
+                        data: Array.from({length: 20}, (_, i) => Math.round(savings * Math.pow(1.065, i) + annualSave * i)),
+                        borderColor: '#1e40af',
+                        tension: 0.3
                     }]
-                }
+                },
+                options: { responsive: true }
             });
         }
     </script>
