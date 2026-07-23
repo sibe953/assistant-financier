@@ -3,143 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulateur - Assistant Financier</title>
+    <title>Simulateur Financier</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        body { font-family:'Inter',sans-serif; background:#f8fafc; padding:20px; }
-        .card { background:white; border-radius:20px; padding:30px; box-shadow:0 10px 30px rgba(0,0,0,0.1); margin-bottom:25px; }
-        .btn { background:#1e40af; color:white; padding:16px; border:none; border-radius:12px; width:100%; cursor:pointer; font-size:1.1rem; margin:10px 0; }
-        .btn-secondary { background:#64748b; }
-        .dashboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; }
-        .dash-value { font-size:2.3rem; font-weight:700; color:#1e40af; }
-        .scenario { padding:20px; border:2px solid #e2e8f0; border-radius:16px; margin-bottom:15px; }
-        .best { border-color:#16a34a; background:#f0fdf4; }
+        body { font-family: Arial, sans-serif; background: #f4f7fa; margin: 0; padding: 20px; }
+        .card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 900px; margin: 20px auto; }
+        input, button { padding: 12px; margin: 8px 0; border-radius: 8px; }
+        button { background: #1e40af; color: white; border: none; font-size: 1.1rem; cursor: pointer; }
+        button:hover { background: #2e50c0; }
+        #results { display: none; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h1>Simulateur Financier Avancé</h1>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;">
-            <div><label>Âge</label><input id="age" type="number" value="38"></div>
-            <div><label>Revenu ménage ($)</label><input id="income" type="number" value="145000"></div>
-            <div><label>Dépenses annuelles ($)</label><input id="expenses" type="number" value="92000"></div>
-            <div><label>Épargne actuelle ($)</label><input id="savings" type="number" value="85000"></div>
-            <div><label>Épargne mensuelle ($)</label><input id="monthly" type="number" value="1800"></div>
-        </div>
-        <button class="btn" onclick="runFullSimulation()">Lancer l'analyse complète</button>
+        <h1>Simulateur Financier</h1>
+        
+        <label>Âge actuel :</label>
+        <input type="number" id="age" value="38"><br>
+        
+        <label>Revenu annuel ($) :</label>
+        <input type="number" id="income" value="145000"><br>
+        
+        <label>Dépenses annuelles ($) :</label>
+        <input type="number" id="expenses" value="92000"><br>
+        
+        <label>Épargne actuelle ($) :</label>
+        <input type="number" id="savings" value="85000"><br>
+        
+        <label>Épargne mensuelle ($) :</label>
+        <input type="number" id="monthly" value="1800"><br>
+        
+        <button onclick="calculer()">Lancer le calcul</button>
     </div>
 
-    <div id="results" style="display:none;">
-        <div class="dashboard" id="dashboard"></div>
-
-        <div class="card">
-            <h2>Comparaison de scénarios</h2>
-            <div id="scenarios"></div>
-        </div>
-
-        <div class="card">
-            <h2>Optimisation REER / CELI</h2>
-            <div id="reerCeli"></div>
-        </div>
-
-        <div class="card">
-            <h2>Projection</h2>
-            <canvas id="chart"></canvas>
-        </div>
-
-        <button class="btn" onclick="exportPDF()">📄 Exporter le rapport PDF</button>
+    <div id="results" class="card">
+        <h2>Résultats</h2>
+        <div id="output"></div>
+        <canvas id="myChart" height="120"></canvas>
     </div>
 
     <script>
-        let currentData = {};
-
-        function runFullSimulation() {
-            const age = +document.getElementById('age').value;
-            const income = +document.getElementById('income').value;
-            const expenses = +document.getElementById('expenses').value;
-            const savings = +document.getElementById('savings').value;
-            const monthly = +document.getElementById('monthly').value;
+        let chart;
+        function calculer() {
+            const age = parseFloat(document.getElementById('age').value);
+            const expenses = parseFloat(document.getElementById('expenses').value);
+            const savings = parseFloat(document.getElementById('savings').value);
+            const monthly = parseFloat(document.getElementById('monthly').value);
+            
             const annualSave = monthly * 12;
-
             let capital = savings;
-            let fiAge = age;
-            for (let y = 0; y < 60; y++) {
+            let years = 0;
+            
+            while (capital < expenses * 25 && years < 50) {
                 capital = capital * 1.065 + annualSave;
-                if (capital >= expenses * 25) { fiAge = age + y; break; }
+                years++;
             }
-
-            currentData = { age, income, expenses, savings, monthly, fiAge, capital, annualSave };
-
-            document.getElementById('dashboard').innerHTML = `
-                <div class="dash-card"><div class="dash-value">${fiAge}</div><p>Âge FI</p></div>
-                <div class="dash-card"><div class="dash-value">${Math.round((annualSave/income)*100)}%</div><p>Taux d'épargne</p></div>
-                <div class="dash-card"><div class="dash-value">${Math.round(capital/1000000*10)/10}M$</div><p>à 65 ans</p></div>
+            
+            const fiAge = age + years;
+            
+            document.getElementById('output').innerHTML = `
+                <p><strong>Âge d'indépendance financière estimé :</strong> ${fiAge} ans</p>
+                <p><strong>Patrimoine à 65 ans :</strong> ${(capital/1000000).toFixed(2)} M$</p>
+                <p><strong>Taux d'épargne :</strong> ${Math.round((annualSave / parseFloat(document.getElementById('income').value)) * 100)} %</p>
             `;
-
-            const scenarios = [
-                {name: "Actuel", monthly: monthly},
-                {name: "+200$/mois", monthly: monthly + 200},
-                {name: "+500$/mois", monthly: monthly + 500},
-                {name: "Max REER/CELI", monthly: monthly + 400}
-            ];
-
-            let html = '';
-            scenarios.forEach(sc => {
-                const res = calculateFI(age, sc.monthly, expenses);
-                const isBest = sc.name.includes("+500") || sc.name.includes("Max");
-                html += `<div class="scenario ${isBest ? 'best' : ''}">
-                    <strong>${sc.name}</strong><br>
-                    Âge FI : ${res.fiAge} ans<br>
-                    Patrimoine estimé : ${Math.round(res.capital/1000)} k$
-                </div>`;
-            });
-            document.getElementById('scenarios').innerHTML = html;
-
-            document.getElementById('reerCeli').innerHTML = `
-                <p><strong>Recommandation :</strong> Priorisez le CELI jusqu'à concurrence de votre plafond, puis REER.</p>
-                <p>Impact estimé : <strong>45 000 $ à 65 000 $</strong> d'économie d'impôt sur 10 ans.</p>
-            `;
-
-            const ctx = document.getElementById('chart');
-            if (window.chart) window.chart.destroy();
-            let data = [];
-            let cap = savings;
-            for (let i = 0; i < 28; i++) {
-                cap = cap * 1.065 + annualSave;
-                data.push(Math.round(cap / 1000));
-            }
-            window.chart = new Chart(ctx, {
-                type: 'line',
-                data: { labels: Array.from({length:28},(_,i)=>age+i), datasets: [{ label:'Patrimoine (k$)', data, borderColor:'#1e40af', tension:0.4 }] },
-                options: { responsive:true }
-            });
-
+            
             document.getElementById('results').style.display = 'block';
-        }
-
-        function calculateFI(age, monthly, expenses) {
-            let capital = 85000;
-            const annual = monthly * 12;
-            for (let y = 0; y < 60; y++) {
-                capital = capital * 1.065 + annual;
-                if (capital >= expenses * 25) return {fiAge: age + y, capital};
-            }
-            return {fiAge: 95, capital};
-        }
-
-        function exportPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const d = currentData;
-            doc.setFontSize(20);
-            doc.text("Rapport d'Indépendance Financière", 20, 20);
-            doc.setFontSize(12);
-            doc.text(`Date: ${new Date().toLocaleDateString('fr-CA')}`, 20, 35);
-            doc.text(`Âge actuel : ${d.age} ans`, 20, 45);
-            doc.text(`Âge FI estimé : ${d.fiAge} ans`, 20, 55);
-            doc.text(`Patrimoine projeté : ${Math.round(d.capital/1000)} k$`, 20, 65);
-            doc.save("Rapport_Financier.pdf");
+            
+            // Graphique
+            const ctx = document.getElementById('myChart');
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: years+5}, (_, i) => age + i),
+                    datasets: [{
+                        label: 'Patrimoine ($)',
+                        data: Array.from({length: years+5}, (_, i) => Math.round(savings * Math.pow(1.065, i) + annualSave * i)),
+                        borderColor: '#1e40af'
+                    }]
+                }
+            });
         }
     </script>
 </body>
