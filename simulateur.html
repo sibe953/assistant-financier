@@ -85,6 +85,7 @@
 
 <script>
     let currentData = {};
+    let chartInstance = null;
 
     const money = value => Math.round(value).toLocaleString('fr-CA') + ' $';
     const ageLabel = value => value === null ? 'Non atteint' : value + ' ans';
@@ -168,6 +169,7 @@
     }
 
     function runFullSimulation() {
+        try {
         const age = +document.getElementById('age').value;
         const retirementAge = +document.getElementById('retirementAge').value;
         const income = +document.getElementById('income').value;
@@ -254,13 +256,25 @@
         currentData = { age, retirementAge, income, expenses, savings, monthly, returnRate, inflationRate, baseline, best, score, savingsRate };
         document.getElementById('results').style.display = 'block';
         document.getElementById('results').scrollIntoView({ behavior:'smooth' });
+        } catch (error) {
+            console.error('Erreur de simulation :', error);
+            alert('Une erreur est survenue pendant la simulation : ' + error.message);
+        }
     }
 
     function renderChart(baseline, best) {
         const ctx = document.getElementById('chart');
-        if (window.chart) window.chart.destroy();
+        if (chartInstance) {
+            chartInstance.destroy();
+            chartInstance = null;
+        }
 
-        window.chart = new Chart(ctx, {
+        if (typeof Chart === 'undefined') {
+            ctx.insertAdjacentHTML('beforebegin', '<p class="notice">Le graphique n’a pas pu être chargé, mais les résultats de la simulation restent disponibles.</p>');
+            return;
+        }
+
+        chartInstance = new Chart(ctx, {
             type:'line',
             data:{
                 labels: baseline.timeline.map(p => p.age),
