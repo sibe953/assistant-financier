@@ -3,117 +3,220 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Simulateur financier avancé</title>
+<title>Assistant financier personnel</title>
 <style>
-:root{--primary:#2747b8;--green:#16803d;--text:#111827;--muted:#64748b;--border:#dbe3ef;--bg:#f6f8fb}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);padding:18px}
-.container{max-width:1180px;margin:auto}.card{background:#fff;border-radius:20px;padding:28px;box-shadow:0 10px 30px rgba(15,23,42,.07);margin-bottom:24px}h1,h2,h3{margin-top:0}.subtitle{color:var(--muted)}
-.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}label{display:block;font-weight:700;margin-bottom:7px}input,select{width:100%;padding:13px 14px;border:2px solid var(--border);border-radius:11px;font-size:1rem;background:#fff}input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(39,71,184,.12)}
-.btn{width:100%;margin-top:20px;padding:16px;border:0;border-radius:12px;background:var(--primary);color:#fff;font-size:1.07rem;font-weight:800;cursor:pointer}.btn:hover{filter:brightness(.95)}.btn:disabled{opacity:.65;cursor:wait}
-.error{display:none;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:14px;border-radius:12px;margin-top:14px}.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:24px}.dash{background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 14px rgba(15,23,42,.06)}.label{color:var(--muted);font-size:.9rem}.value{font-size:1.8rem;font-weight:800;color:var(--primary);margin-top:6px}.lever{border-left:6px solid var(--green);background:#f0fdf4}.scenario{border:2px solid var(--border);padding:18px;border-radius:15px;margin:12px 0}.scenario.best{border-color:#22c55e;background:#f0fdf4}.badge{display:inline-block;background:#dcfce7;color:#166534;border-radius:999px;padding:4px 9px;font-size:.78rem;font-weight:800;margin-left:8px}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}.metric{background:#f8fafc;border-radius:10px;padding:11px}.metric strong{display:block;margin-top:4px}.chart-wrap{height:390px}.chart-wrap canvas{width:100%;height:100%}.hidden{display:none!important}.goal{background:linear-gradient(135deg,#eef2ff,#f0fdf4);border:1px solid #c7d2fe}.diagnostic{border-left:6px solid #f59e0b}.notice{color:var(--muted);line-height:1.55;font-size:.92rem}.actions{display:flex;gap:12px;flex-wrap:wrap}.actions .btn{width:auto;flex:1;min-width:220px}.secondary{background:#475569}@media(max-width:640px){body{padding:10px}.card{padding:20px}.chart-wrap{height:300px}}
-@media print{body{background:#fff;padding:0}.input-card,.actions{display:none}.card,.dash{box-shadow:none;border:1px solid #ddd}#results{display:block!important}}
+:root{--primary:#2848bd;--primary2:#1d3696;--green:#16803d;--orange:#d97706;--red:#b91c1c;--text:#121827;--muted:#64748b;--border:#dbe3ef;--bg:#f4f7fb}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);padding:18px}
+.container{max-width:1080px;margin:auto}.card{background:#fff;border-radius:22px;padding:30px;box-shadow:0 12px 34px rgba(15,23,42,.08);margin-bottom:22px}h1,h2,h3{margin-top:0}.subtitle{color:var(--muted);line-height:1.55}.eyebrow{font-size:.82rem;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px}.field label{display:block;font-weight:750;margin-bottom:7px}.field small{display:block;color:var(--muted);margin-top:6px;line-height:1.35}.field input,.field select{width:100%;padding:14px;border:2px solid var(--border);border-radius:12px;font-size:1rem;background:#fff}.field input:focus,.field select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(40,72,189,.12)}.field.invalid input,.field.invalid select{border-color:var(--red);background:#fff7f7}.field-error{color:var(--red);font-size:.82rem;margin-top:6px;display:none}.field.invalid .field-error{display:block}
+.btn{width:100%;padding:16px 18px;border:0;border-radius:13px;background:var(--primary);color:#fff;font-size:1.06rem;font-weight:800;cursor:pointer;transition:.2s}.btn:hover{background:var(--primary2);transform:translateY(-1px)}.btn.secondary{background:#eef2ff;color:var(--primary)}.btn.ghost{background:#fff;color:#334155;border:1px solid var(--border)}.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.btn-row .btn{flex:1;min-width:210px}.error{display:none;margin-top:14px;padding:14px;border-radius:12px;background:#fff1f2;color:#9f1239;border:1px solid #fecdd3}.hidden{display:none!important}.advanced{margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+.hero-result{background:linear-gradient(135deg,#eef2ff,#f0fdf4);border:1px solid #d5dcff}.headline{font-size:clamp(1.7rem,3vw,2.6rem);font-weight:850;line-height:1.12;margin:8px 0}.status{display:inline-block;padding:7px 11px;border-radius:999px;font-weight:800;font-size:.84rem}.status.good{background:#dcfce7;color:#166534}.status.mid{background:#fef3c7;color:#92400e}.status.bad{background:#fee2e2;color:#991b1b}
+.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}.dash{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px}.dash .k{color:var(--muted);font-size:.88rem}.dash .v{font-size:1.7rem;font-weight:850;color:var(--primary);margin-top:5px}.bar{height:12px;background:#e8edf5;border-radius:999px;overflow:hidden;margin:10px 0}.bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--primary),#4f72e8);border-radius:inherit}.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.plan{border:1px solid var(--border);border-radius:16px;padding:18px;background:#fff}.plan.best{border-color:#22c55e;background:#f0fdf4}.plan h3{margin-bottom:8px}.plan .big{font-size:1.55rem;font-weight:850;color:var(--primary)}.action-list{display:grid;gap:12px}.action{border:1px solid var(--border);border-radius:14px;padding:16px}.action.best{border-color:#22c55e;background:#f0fdf4}.action-title{font-weight:850}.action-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-top:10px}.metric{background:#f8fafc;border-radius:10px;padding:10px}.metric span{display:block;color:var(--muted);font-size:.8rem}.metric strong{display:block;margin-top:4px}.note{color:var(--muted);font-size:.9rem;line-height:1.55}.chart{width:100%;height:340px;display:block}.self-box{background:#f8fafc;border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:16px}.checks{display:grid;gap:10px}.check{display:flex;gap:10px;align-items:flex-start}.check b{min-width:22px}.print-only{display:none}
+@media(max-width:760px){body{padding:10px}.card{padding:20px}.plan-grid{grid-template-columns:1fr}.headline{font-size:1.8rem}.chart{height:280px}}
+@media print{body{background:#fff;padding:0}.input-card,.btn-row{display:none!important}.card,.dash,.plan,.action{box-shadow:none}.print-only{display:block}}
 </style>
 </head>
 <body>
 <div class="container">
-  <section class="card input-card">
-    <h1>Simulateur financier avancé</h1>
-    <p class="subtitle">Comparez des décisions sur une même base et distinguez indépendance financière et retraite.</p>
-    <div class="form-grid">
-      <div><label for="profile">Situation professionnelle</label><select id="profile"><option value="employee">Salarié(e)</option><option value="self">Travailleur autonome</option></select></div>
-      <div><label for="age">Âge actuel</label><input id="age" type="number" min="18" max="80" value="38"></div>
-      <div><label for="retirementAge">Âge de retraite souhaité</label><input id="retirementAge" type="number" min="40" max="90" value="65"></div>
-      <div><label for="income">Revenu annuel du ménage ($)</label><input id="income" type="number" min="1" value="145000"></div>
-      <div><label for="expenses">Dépenses annuelles actuelles ($)</label><input id="expenses" type="number" min="1" value="92000"></div>
-      <div><label for="savings">Épargne actuelle ($)</label><input id="savings" type="number" min="0" value="85000"></div>
-      <div><label for="monthly">Épargne mensuelle ($)</label><input id="monthly" type="number" min="0" value="1800"></div>
-      <div><label for="returnRate">Rendement annuel attendu (%)</label><input id="returnRate" type="number" min="0" max="15" step="0.1" value="6.5"></div>
-      <div><label for="inflationRate">Inflation annuelle (%)</label><input id="inflationRate" type="number" min="0" max="10" step="0.1" value="2.2"></div>
-      <div><label for="desiredIncome">Revenu annuel souhaité à la retraite ($ d’aujourd’hui)</label><input id="desiredIncome" type="number" min="1" value="65000"></div>
-      <div><label for="fees">Frais annuels de placement (%)</label><input id="fees" type="number" min="0" max="5" step="0.1" value="1.5"></div>
-      <div><label for="savingsGrowth">Hausse annuelle prévue de l’épargne (%)</label><input id="savingsGrowth" type="number" min="0" max="15" step="0.5" value="0"></div>
+<section class="card input-card">
+  <div class="eyebrow">Analyse en moins d'une minute</div>
+  <h1>Quel revenu pouvez-vous viser à la retraite?</h1>
+  <p class="subtitle">Commencez avec 5 réponses simples. Vous pourrez ensuite affiner le résultat, sans remplir un formulaire interminable.</p>
+
+  <div class="grid" id="basicFields">
+    <div class="field" data-field="age"><label for="age">Votre âge</label><input id="age" inputmode="numeric" value="38"><div class="field-error">Entrez un âge valide.</div></div>
+    <div class="field" data-field="income"><label for="income">Revenu annuel du ménage</label><input id="income" inputmode="decimal" value="145000"><div class="field-error">Entrez un revenu valide.</div></div>
+    <div class="field" data-field="expenses"><label for="expenses">Dépenses annuelles</label><input id="expenses" inputmode="decimal" value="92000"><div class="field-error">Entrez des dépenses valides.</div></div>
+    <div class="field" data-field="savings"><label for="savings">Épargne actuelle</label><input id="savings" inputmode="decimal" value="85000"><div class="field-error">Entrez un montant valide.</div></div>
+    <div class="field" data-field="monthly"><label for="monthly">Épargne mensuelle</label><input id="monthly" inputmode="decimal" value="1800"><div class="field-error">Entrez un montant valide.</div></div>
+  </div>
+
+  <div class="btn-row">
+    <button id="analyzeBtn" class="btn" type="button">Voir mon plan de retraite</button>
+    <button id="advancedToggle" class="btn secondary" type="button" aria-expanded="false">Affiner mon analyse</button>
+  </div>
+
+  <div id="advancedPanel" class="advanced hidden">
+    <h2>Options avancées</h2>
+    <p class="subtitle">Modifiez seulement ce que vous connaissez. Les valeurs proposées sont déjà utilisables.</p>
+    <div class="grid">
+      <div class="field" data-field="profile"><label for="profile">Situation professionnelle</label><select id="profile"><option value="employee">Salarié(e)</option><option value="self">Travailleur autonome</option></select></div>
+      <div class="field" data-field="retirementAge"><label for="retirementAge">Âge de retraite souhaité</label><input id="retirementAge" inputmode="numeric" value="65"><div class="field-error">L'âge doit être supérieur à votre âge actuel.</div></div>
+      <div class="field" data-field="desiredIncome"><label for="desiredIncome">Revenu annuel souhaité à la retraite</label><input id="desiredIncome" inputmode="decimal" value="65000"><div class="field-error">Entrez un revenu valide.</div></div>
+      <div class="field" data-field="returnRate"><label for="returnRate">Rendement annuel attendu (%)</label><input id="returnRate" inputmode="decimal" value="6,5"><small>La virgule ou le point sont acceptés.</small><div class="field-error">Entrez un pourcentage entre 0 et 15.</div></div>
+      <div class="field" data-field="fees"><label for="fees">Frais annuels de placement (%)</label><input id="fees" inputmode="decimal" value="1,5"><div class="field-error">Entrez un pourcentage entre 0 et 5.</div></div>
+      <div class="field" data-field="inflationRate"><label for="inflationRate">Inflation annuelle (%)</label><input id="inflationRate" inputmode="decimal" value="2,2"><div class="field-error">Entrez un pourcentage entre 0 et 10.</div></div>
+      <div class="field" data-field="savingsGrowth"><label for="savingsGrowth">Hausse annuelle de l'épargne (%)</label><input id="savingsGrowth" inputmode="decimal" value="0"><div class="field-error">Entrez un pourcentage entre 0 et 15.</div></div>
     </div>
-    <div id="selfFields" class="form-grid hidden" style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
-      <div><label for="businessNet">Revenu net annuel d’entreprise ($)</label><input id="businessNet" type="number" min="0" value="90000"></div>
-      <div><label for="businessCash">Liquidités de l’entreprise ($)</label><input id="businessCash" type="number" min="0" value="25000"></div>
-      <div><label for="businessCosts">Dépenses mensuelles fixes d’entreprise ($)</label><input id="businessCosts" type="number" min="0" value="5000"></div>
-      <div><label for="taxReserve">Part du revenu mise de côté pour impôts (%)</label><input id="taxReserve" type="number" min="0" max="60" step="1" value="30"></div>
-      <div><label for="volatility">Variation possible du revenu (%)</label><input id="volatility" type="number" min="0" max="80" step="5" value="20"></div>
+
+    <div id="selfFields" class="self-box hidden">
+      <h3>Travailleur autonome</h3>
+      <p class="note">Ces données servent à vérifier la stabilité de l'entreprise avant d'augmenter les placements.</p>
+      <div class="grid">
+        <div class="field" data-field="businessNet"><label for="businessNet">Revenu net annuel d'entreprise</label><input id="businessNet" inputmode="decimal" value="90000"><div class="field-error">Entrez un montant valide.</div></div>
+        <div class="field" data-field="businessCash"><label for="businessCash">Liquidités de l'entreprise</label><input id="businessCash" inputmode="decimal" value="25000"><div class="field-error">Entrez un montant valide.</div></div>
+        <div class="field" data-field="businessCosts"><label for="businessCosts">Dépenses fixes mensuelles</label><input id="businessCosts" inputmode="decimal" value="5000"><div class="field-error">Entrez un montant valide.</div></div>
+        <div class="field" data-field="taxReserve"><label for="taxReserve">Part mise de côté pour impôts (%)</label><input id="taxReserve" inputmode="decimal" value="30"><div class="field-error">Entrez un pourcentage entre 0 et 60.</div></div>
+        <div class="field" data-field="volatility"><label for="volatility">Variation possible du revenu (%)</label><input id="volatility" inputmode="decimal" value="20"><div class="field-error">Entrez un pourcentage entre 0 et 80.</div></div>
+      </div>
     </div>
-    <button id="simulateBtn" class="btn" type="button">Trouver le meilleur scénario testé</button>
-    <div id="errorBox" class="error" role="alert"></div>
+  </div>
+  <div id="errorBox" class="error" role="alert"></div>
+</section>
+
+<main id="results" class="hidden">
+  <section class="card hero-result">
+    <div id="resultStatus" class="status good">Votre portrait</div>
+    <div id="resultHeadline" class="headline"></div>
+    <p id="resultSummary" class="subtitle"></p>
+    <div class="bar"><span id="goalBar" style="width:0%"></span></div>
+    <div id="goalText" class="note"></div>
   </section>
 
-  <main id="results" hidden>
-    <div id="dashboard" class="dashboard"></div>
-    <section class="card goal"><h2>Votre objectif de revenu de retraite</h2><div id="retirementGoal"></div></section>
-    <section class="card lever"><h2>🥇 Votre meilleur levier</h2><div id="bestLever"></div></section>
-    <section class="card diagnostic"><h2>Diagnostic et plan d’action</h2><div id="diagnostic"></div></section>
-    <section class="card"><h2>Comparaison des scénarios</h2><p class="notice">Les scénarios sont comparés au même âge. Le résultat indique le meilleur parmi les options réellement testées.</p><div id="scenarios"></div></section>
-    <section class="card"><h2>Projection actuelle vs meilleur scénario</h2><div class="chart-wrap"><canvas id="wealthCanvas"></canvas></div></section>
-    <section class="card"><h2>Orientation REER / CELI</h2><p class="notice">Cette version ne calcule pas encore les droits réels ni la fiscalité québécoise. Elle ne produit donc aucune économie d’impôt personnalisée fictive.</p></section>
-    <div class="actions"><button id="printBtn" class="btn secondary" type="button">Imprimer / Enregistrer en PDF</button><button id="recalcBtn" class="btn" type="button">Modifier les données</button></div>
-  </main>
+  <section class="dashboard" id="dashboard"></section>
+
+  <section class="card">
+    <h2>Trois plans faciles à comparer</h2>
+    <div id="plans" class="plan-grid"></div>
+  </section>
+
+  <section class="card">
+    <h2>Quoi faire pour augmenter votre retraite</h2>
+    <div id="actions" class="action-list"></div>
+  </section>
+
+  <section id="selfAdviceCard" class="card hidden">
+    <h2>Plan spécial travailleur autonome</h2>
+    <div id="selfAdvice" class="checks"></div>
+  </section>
+
+  <section class="card">
+    <h2>Projection</h2>
+    <canvas id="chart" class="chart"></canvas>
+    <p class="note">Projection éducative fondée sur les hypothèses saisies. Elle ne remplace pas un plan financier ou fiscal personnalisé.</p>
+  </section>
+
+  <div class="btn-row">
+    <button id="editBtn" class="btn secondary" type="button">Modifier mes réponses</button>
+    <button id="printBtn" class="btn ghost" type="button">Imprimer / Enregistrer en PDF</button>
+  </div>
+</main>
 </div>
 <script>
-(function(){
+(()=>{
 'use strict';
 const $=id=>document.getElementById(id);
-const fmtMoney=n=>Math.round(Number.isFinite(n)?n:0).toLocaleString('fr-CA')+' $';
-const fmtAge=n=>Number.isFinite(n)?n+' ans':'Non atteint';
-function readNumber(id){const raw=$(id).value.trim().replace(',','.');return Number(raw)}
-function project(input){
- let capital=input.startCapital,fiAge=null,capitalAtRetirement=null,capitalAt65=null,timeline=[];
- for(let year=0;year<=95-input.age;year++){
-   const currentAge=input.age+year;
-   const expenses=input.annualExpenses*Math.pow(1+input.inflationRate,year);
-   const retirementIncome=input.desiredIncome*Math.pow(1+input.inflationRate,year);
-   const target=retirementIncome*25;
-   if(year>0){
-     capital*=1+Math.max(-0.99,input.returnRate-input.fees);
-     if(currentAge<=input.retirementAge){const grownMonthly=input.monthlySave*Math.pow(1+input.savingsGrowth,year);capital+=grownMonthly*12;}
-     else capital-=retirementIncome;
-     if(capital<0) capital=0;
-   }
-   if(fiAge===null&&capital>=target) fiAge=currentAge;
-   if(currentAge===input.retirementAge) capitalAtRetirement=capital;
-   if(currentAge===65) capitalAt65=capital;
-   timeline.push({age:currentAge,capital,target});
+const money=n=>Math.round(Number.isFinite(n)?n:0).toLocaleString('fr-CA')+' $';
+const ageLabel=n=>Number.isFinite(n)?n+' ans':'Non atteint';
+const numberValue=id=>{
+  const raw=$(id).value.trim().replace(/\s/g,'').replace(',','.');
+  return raw===''?NaN:Number(raw);
+};
+function clearErrors(){document.querySelectorAll('.field').forEach(x=>x.classList.remove('invalid'));$('errorBox').style.display='none'}
+function invalidate(id){const el=document.querySelector('[data-field="'+id+'"]');if(el)el.classList.add('invalid')}
+function validate(){
+ clearErrors();
+ const v={
+  age:numberValue('age'),income:numberValue('income'),expenses:numberValue('expenses'),savings:numberValue('savings'),monthly:numberValue('monthly'),
+  retirementAge:numberValue('retirementAge'),desiredIncome:numberValue('desiredIncome'),returnRate:numberValue('returnRate'),fees:numberValue('fees'),inflationRate:numberValue('inflationRate'),savingsGrowth:numberValue('savingsGrowth'),
+  businessNet:numberValue('businessNet'),businessCash:numberValue('businessCash'),businessCosts:numberValue('businessCosts'),taxReserve:numberValue('taxReserve'),volatility:numberValue('volatility')
+ };
+ let bad=false;
+ const rule=(id,ok)=>{if(!ok){invalidate(id);bad=true}};
+ rule('age',Number.isFinite(v.age)&&v.age>=18&&v.age<=80);
+ rule('income',Number.isFinite(v.income)&&v.income>0);
+ rule('expenses',Number.isFinite(v.expenses)&&v.expenses>0);
+ rule('savings',Number.isFinite(v.savings)&&v.savings>=0);
+ rule('monthly',Number.isFinite(v.monthly)&&v.monthly>=0);
+ rule('retirementAge',Number.isFinite(v.retirementAge)&&v.retirementAge>v.age&&v.retirementAge<=90);
+ rule('desiredIncome',Number.isFinite(v.desiredIncome)&&v.desiredIncome>0);
+ rule('returnRate',Number.isFinite(v.returnRate)&&v.returnRate>=0&&v.returnRate<=15);
+ rule('fees',Number.isFinite(v.fees)&&v.fees>=0&&v.fees<=5);
+ rule('inflationRate',Number.isFinite(v.inflationRate)&&v.inflationRate>=0&&v.inflationRate<=10);
+ rule('savingsGrowth',Number.isFinite(v.savingsGrowth)&&v.savingsGrowth>=0&&v.savingsGrowth<=15);
+ if($('profile').value==='self'){
+   rule('businessNet',Number.isFinite(v.businessNet)&&v.businessNet>=0);
+   rule('businessCash',Number.isFinite(v.businessCash)&&v.businessCash>=0);
+   rule('businessCosts',Number.isFinite(v.businessCosts)&&v.businessCosts>=0);
+   rule('taxReserve',Number.isFinite(v.taxReserve)&&v.taxReserve>=0&&v.taxReserve<=60);
+   rule('volatility',Number.isFinite(v.volatility)&&v.volatility>=0&&v.volatility<=80);
  }
- const findAge=a=>{const p=timeline.find(x=>x.age===a);return p?p.capital:null};
- if(capitalAtRetirement===null) capitalAtRetirement=findAge(input.retirementAge)??capital;
- if(capitalAt65===null) capitalAt65=findAge(65)??capital;
- return{fiAge,capitalAtRetirement,capitalAt65,capitalAt95:capital,timeline,sustainableIncome:capitalAtRetirement*.04};
+ if(bad){$('errorBox').textContent='Vérifiez les champs indiqués en rouge.';$('errorBox').style.display='block';const first=document.querySelector('.field.invalid input,.field.invalid select');if(first)first.focus();return null}
+ return {...v,profile:$('profile').value,returnRate:v.returnRate/100,fees:v.fees/100,inflationRate:v.inflationRate/100,savingsGrowth:v.savingsGrowth/100};
 }
-function scoreScenarios(items){
- const maxGain=Math.max(0,...items.map(x=>Math.max(0,x.gainCapital)));
- const maxYears=Math.max(0,...items.map(x=>Math.max(0,x.yearsGained)));
- items.forEach(x=>{const a=maxGain?Math.max(0,x.gainCapital)/maxGain:0;const b=maxYears?Math.max(0,x.yearsGained)/maxYears:0;const c=1-Math.min(10,Math.max(0,x.effort))/10;x.score=.5*a+.4*b+.1*c});
+function project(i){
+ let capital=i.savings,fiAge=null,timeline=[],retirementCapital=0;
+ for(let y=0;y<=95-i.age;y++){
+  const a=i.age+y;
+  if(y>0){
+   capital*=1+Math.max(-.95,i.returnRate-i.fees);
+   if(a<=i.retirementAge)capital+=i.monthly*12*Math.pow(1+i.savingsGrowth,y);
+   else capital-=i.desiredIncome*Math.pow(1+i.inflationRate,y);
+   capital=Math.max(0,capital);
+  }
+  const target=i.desiredIncome*Math.pow(1+i.inflationRate,y)*25;
+  if(fiAge===null&&capital>=target)fiAge=a;
+  if(a===i.retirementAge)retirementCapital=capital;
+  timeline.push({age:a,capital,target});
+ }
+ const at=a=>timeline.find(x=>x.age===a)?.capital??0;
+ return{fiAge,retirementCapital:retirementCapital||at(i.retirementAge),capital65:at(65),capital95:at(95),sustainable:(retirementCapital||at(i.retirementAge))*.04,timeline};
 }
-function financialScore(rate,projection,age,target65){let s=Math.min(30,rate*1.5);if(projection.fiAge!==null)s+=projection.fiAge<60?30:projection.fiAge<=67?22:12;s+=Math.min(25,(projection.capitalAt65/Math.max(1,target65))*25);s+=projection.fiAge!==null&&projection.fiAge-age<=20?15:8;return Math.round(Math.min(100,s))}
+function scenario(baseInput,name,changes,effort){
+ const input={...baseInput,...changes};
+ const p=project(input);
+ return{name,input,p,effort};
+}
 function drawChart(base,best){
- const canvas=$('wealthCanvas'),box=canvas.getBoundingClientRect(),dpr=window.devicePixelRatio||1;canvas.width=Math.max(600,box.width*dpr);canvas.height=Math.max(300,box.height*dpr);const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);const w=canvas.width/dpr,h=canvas.height/dpr,pad={l:62,r:20,t:24,b:44};ctx.clearRect(0,0,w,h);
- const all=[...base.timeline.map(x=>x.capital),...best.timeline.map(x=>x.capital),...base.timeline.map(x=>x.target)];const max=Math.max(1,...all);const n=base.timeline.length;const X=i=>pad.l+i*(w-pad.l-pad.r)/(n-1);const Y=v=>h-pad.b-v*(h-pad.t-pad.b)/max;
- ctx.strokeStyle='#dbe3ef';ctx.lineWidth=1;ctx.fillStyle='#64748b';ctx.font='12px system-ui';for(let i=0;i<=5;i++){const v=max*i/5,y=Y(v);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillText(Math.round(v/1000).toLocaleString('fr-CA')+'k',5,y+4)}
- function line(data,color,dash){ctx.save();ctx.strokeStyle=color;ctx.lineWidth=3;ctx.setLineDash(dash||[]);ctx.beginPath();data.forEach((v,i)=>i?ctx.lineTo(X(i),Y(v)):ctx.moveTo(X(i),Y(v)));ctx.stroke();ctx.restore()}
- line(base.timeline.map(x=>x.capital),'#2747b8');line(best.timeline.map(x=>x.capital),'#16803d');line(base.timeline.map(x=>x.target),'#94a3b8',[7,6]);
- ctx.fillStyle='#334155';ctx.font='12px system-ui';for(let i=0;i<n;i+=Math.max(1,Math.floor(n/8)))ctx.fillText(base.timeline[i].age,X(i)-8,h-16);
- ctx.fillStyle='#2747b8';ctx.fillRect(pad.l,6,18,3);ctx.fillStyle='#111827';ctx.fillText('Actuel',pad.l+25,11);ctx.fillStyle='#16803d';ctx.fillRect(pad.l+90,6,18,3);ctx.fillStyle='#111827';ctx.fillText('Optimisé',pad.l+115,11);ctx.strokeStyle='#94a3b8';ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(pad.l+205,8);ctx.lineTo(pad.l+223,8);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#111827';ctx.fillText('Cible FI',pad.l+230,11)
+ const c=$('chart'),r=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;c.width=Math.max(640,r.width*dpr);c.height=Math.max(300,r.height*dpr);const x=c.getContext('2d');x.scale(dpr,dpr);const w=c.width/dpr,h=c.height/dpr,p={l:58,r:18,t:26,b:42};x.clearRect(0,0,w,h);
+ const all=[...base.timeline.map(v=>v.capital),...best.timeline.map(v=>v.capital),...base.timeline.map(v=>v.target)],max=Math.max(1,...all),n=base.timeline.length,X=i=>p.l+i*(w-p.l-p.r)/(n-1),Y=v=>h-p.b-v*(h-p.t-p.b)/max;
+ x.font='12px system-ui';x.strokeStyle='#dbe3ef';x.fillStyle='#64748b';for(let i=0;i<=5;i++){const val=max*i/5,y=Y(val);x.beginPath();x.moveTo(p.l,y);x.lineTo(w-p.r,y);x.stroke();x.fillText(Math.round(val/1000)+'k',6,y+4)}
+ const line=(data,color,dash=[])=>{x.save();x.strokeStyle=color;x.lineWidth=3;x.setLineDash(dash);x.beginPath();data.forEach((v,i)=>i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v)));x.stroke();x.restore()};
+ line(base.timeline.map(v=>v.capital),'#2848bd');line(best.timeline.map(v=>v.capital),'#16803d');line(base.timeline.map(v=>v.target),'#94a3b8',[6,5]);
+ x.fillStyle='#334155';for(let i=0;i<n;i+=Math.max(1,Math.floor(n/7)))x.fillText(base.timeline[i].age,X(i)-8,h-14);
+ x.fillStyle='#2848bd';x.fillText('Actuel',p.l,14);x.fillStyle='#16803d';x.fillText('Meilleur plan',p.l+70,14);x.fillStyle='#64748b';x.fillText('Cible',p.l+170,14);
 }
 function run(){
- const btn=$('simulateBtn'),error=$('errorBox');error.style.display='none';btn.disabled=true;btn.textContent='Calcul en cours…';
- try{
-  const profile=$('profile').value;const input={profile,age:readNumber('age'),retirementAge:readNumber('retirementAge'),income:readNumber('income'),annualExpenses:readNumber('expenses'),startCapital:readNumber('savings'),monthlySave:readNumber('monthly'),returnRate:readNumber('returnRate')/100,inflationRate:readNumber('inflationRate')/100,desiredIncome:readNumber('desiredIncome'),fees:readNumber('fees')/100,savingsGrowth:readNumber('savingsGrowth')/100,businessNet:readNumber('businessNet'),businessCash:readNumber('businessCash'),businessCosts:readNumber('businessCosts'),taxReserve:readNumber('taxReserve'),volatility:readNumber('volatility')};
-  const vals=Object.values(input);if(!vals.every(Number.isFinite))throw new Error('Un ou plusieurs champs contiennent une valeur invalide.');if(input.age<18||input.retirementAge<=input.age)throw new Error('L’âge de retraite doit être supérieur à l’âge actuel.');if(input.income<=0||input.annualExpenses<=0)throw new Error('Le revenu et les dépenses doivent être supérieurs à zéro.');
-  const base=project(input);let defs=[{name:'Actuel',m:0,r:0,e:0,fee:0,growth:0,label:'Aucun changement'},{name:'+100 $/mois',m:100,r:0,e:2,fee:0,growth:0,label:'Faible ajustement budgétaire'},{name:'+250 $/mois',m:250,r:0,e:4,fee:0,growth:0,label:'Ajustement modéré'},{name:'+500 $/mois',m:500,r:0,e:7,fee:0,growth:0,label:'Effort budgétaire élevé'},{name:'Retraite +1 an',m:0,r:1,e:3,fee:0,growth:0,label:'Une année de travail supplémentaire'},{name:'Retraite +2 ans',m:0,r:2,e:5,fee:0,growth:0,label:'Deux années de travail supplémentaires'},{name:'Réduire les frais de 0,5 %',m:0,r:0,e:2,fee:.005,growth:0,label:'Révision des frais de placement'},{name:'Augmenter l’épargne de 3 %/an',m:0,r:0,e:3,fee:0,growth:.03,label:'Épargne progressive'}];if(profile==='self'){defs.push({name:'Verser 5 % du revenu net d’entreprise',m:input.businessNet*.05/12,r:0,e:4,fee:0,growth:0,label:'Virement automatique mensuel'});defs.push({name:'Épargner 50 % d’une hausse de revenu de 10 %',m:input.businessNet*.10*.5/12,r:0,e:5,fee:0,growth:0,label:'Croissance de revenus + discipline'});}const scenarios=defs.map(d=>{const p=project({...input,monthlySave:input.monthlySave+d.m,retirementAge:input.retirementAge+d.r,fees:Math.max(0,input.fees-d.fee),savingsGrowth:Math.max(input.savingsGrowth,d.growth)});return{...d,...p,gainCapital:p.capitalAt65-base.capitalAt65,extraIncome:p.sustainableIncome-base.sustainableIncome,yearsGained:base.fiAge!==null&&p.fiAge!==null?base.fiAge-p.fiAge:0}});scoreScenarios(scenarios);const alternatives=scenarios.filter(x=>x.name!=='Actuel').sort((a,b)=>b.score-a.score);const best=alternatives[0];
-  const rate=input.monthlySave*12/input.income*100,target65=input.annualExpenses*Math.pow(1+input.inflationRate,Math.max(0,65-input.age))*25,score=financialScore(rate,base,input.age,target65);
-  $('dashboard').innerHTML=`<div class="dash"><div class="label">⭐ Score financier</div><div class="value">${score}/100</div></div><div class="dash"><div class="label">Âge FI estimé</div><div class="value">${fmtAge(base.fiAge)}</div></div><div class="dash"><div class="label">Patrimoine à 65 ans</div><div class="value">${fmtMoney(base.capitalAt65)}</div></div><div class="dash"><div class="label">Capital à la retraite</div><div class="value">${fmtMoney(base.capitalAtRetirement)}</div></div><div class="dash"><div class="label">Taux d’épargne</div><div class="value">${rate.toFixed(1)}%</div></div><div class="dash"><div class="label">Capital à 95 ans</div><div class="value">${fmtMoney(base.capitalAt95)}</div></div>`;
-  const gap=base.sustainableIncome-input.desiredIncome;$('retirementGoal').innerHTML=`<div class="metrics"><div class="metric">Revenu souhaité<strong>${fmtMoney(input.desiredIncome)}/an</strong></div><div class="metric">Revenu soutenable estimé<strong>${fmtMoney(base.sustainableIncome)}/an</strong></div><div class="metric">Écart<strong>${gap>=0?'+':''}${fmtMoney(gap)}/an</strong></div></div><p>${gap>=0?'Votre capital projeté couvre l’objectif selon la règle simplifiée de 4 %.':'Il manque environ <strong>'+fmtMoney(Math.abs(gap))+' par année</strong>. Le meilleur scénario testé réduit cet écart de <strong>'+fmtMoney(Math.max(0,best.extraIncome))+' par année</strong>.'}</p>`;let diag=[];if(rate<15)diag.push('Votre frein principal est le taux d’épargne. Automatisez une hausse mensuelle avant de chercher un rendement plus risqué.');if(input.fees>0.012)diag.push('Vos frais de placement sont élevés dans le modèle. Une baisse de frais peut améliorer la retraite sans augmenter l’effort d’épargne.');if(profile==='self'){const reserveMonths=input.businessCosts>0?input.businessCash/input.businessCosts:0;const rrq1=Math.max(0,Math.min(input.businessNet,74600)-3500)*.126;const rrq2=Math.max(0,Math.min(input.businessNet,85000)-74600)*.08;const rrq=Math.min(8958.6,rrq1)+Math.min(832,rrq2);diag.push('Réserve d’entreprise estimée : <strong>'+reserveMonths.toFixed(1)+' mois</strong>. Visez d’abord une réserve adaptée à la volatilité de vos revenus avant d’augmenter agressivement les placements.');diag.push('Cotisation RRQ autonome 2026 approximative selon le revenu net saisi : <strong>'+fmtMoney(rrq)+'</strong>. Ce montant est indicatif et ne remplace pas l’annexe U.');if(input.taxReserve<25)diag.push('La réserve fiscale saisie semble faible. Séparez automatiquement une part de chaque encaissement dans un compte distinct pour éviter de financer l’impôt avec l’épargne-retraite.');diag.push('Pour un travailleur autonome, la stratégie la plus robuste est généralement : salaire personnel stable, réserve fiscale, réserve d’entreprise, puis virement automatique CELI/REER selon les droits réels.');}else{diag.push('Utilisez le scénario gagnant comme première action, puis refaites la simulation après l’avoir intégrée à votre budget.');}$('diagnostic').innerHTML='<ol><li>'+diag.join('</li><li>')+'</li></ol><p class="notice">Les estimations fiscales et RRQ sont éducatives. Elles ne remplacent pas un calcul produit avec vos avis de cotisation et votre structure juridique.</p>';$('bestLever').innerHTML=`<h3>${best.name}</h3><p><strong>Âge FI :</strong> ${fmtAge(base.fiAge)} → ${fmtAge(best.fiAge)}</p><p><strong>Revenu de retraite supplémentaire estimé :</strong> ${best.extraIncome>=0?'+':''}${fmtMoney(best.extraIncome)}/an</p><p><strong>Gain à 65 ans :</strong> ${best.gainCapital>=0?'+':''}${fmtMoney(best.gainCapital)}</p><p><strong>Effort estimé :</strong> ${best.label}</p>`;
-  const ordered=[scenarios[0],...alternatives];$('scenarios').innerHTML=ordered.map(s=>`<div class="scenario ${s===best?'best':''}"><strong>${s.name}</strong>${s===best?'<span class="badge">Meilleur score</span>':''}<div class="metrics"><div class="metric">Âge FI<strong>${fmtAge(s.fiAge)}</strong></div><div class="metric">Capital à 65 ans<strong>${fmtMoney(s.capitalAt65)}</strong></div><div class="metric">Gain à 65 ans<strong>${s.gainCapital>=0?'+':''}${fmtMoney(s.gainCapital)}</strong></div><div class="metric">Années FI gagnées<strong>${Math.max(0,s.yearsGained)}</strong></div><div class="metric">Revenu retraite estimé<strong>${fmtMoney(s.sustainableIncome)}/an</strong></div><div class="metric">Score comparatif<strong>${Math.round(s.score*100)}/100</strong></div></div></div>`).join('');
-  $('results').hidden=false;requestAnimationFrame(()=>drawChart(base,best));$('results').scrollIntoView({behavior:'smooth',block:'start'});
- }catch(err){error.textContent=err.message||'Erreur inattendue.';error.style.display='block';console.error(err)}finally{btn.disabled=false;btn.textContent='Trouver le meilleur scénario testé'}
+ const input=validate();if(!input)return;
+ const base=project(input);
+ const scenarios=[
+  scenario(input,'Ajouter 100 $/mois',{monthly:input.monthly+100},1),
+  scenario(input,'Ajouter 250 $/mois',{monthly:input.monthly+250},3),
+  scenario(input,'Ajouter 500 $/mois',{monthly:input.monthly+500},6),
+  scenario(input,'Travailler 1 an de plus',{retirementAge:input.retirementAge+1},3),
+  scenario(input,'Travailler 2 ans de plus',{retirementAge:input.retirementAge+2},5),
+  scenario(input,'Réduire les frais de 0,5 %',{fees:Math.max(0,input.fees-.005)},2),
+  scenario(input,'Augmenter l’épargne de 3 %/an',{savingsGrowth:Math.max(input.savingsGrowth,.03)},3)
+ ];
+ if(input.profile==='self'){
+  scenarios.push(scenario(input,'Verser 5 % du revenu net d’entreprise',{monthly:input.monthly+input.businessNet*.05/12},4));
+  scenarios.push(scenario(input,'Épargner la moitié d’une hausse de revenu de 10 %',{monthly:input.monthly+input.businessNet*.05/12},5));
+ }
+ scenarios.forEach(s=>{s.gain65=s.p.capital65-base.capital65;s.extraIncome=s.p.sustainable-base.sustainable;s.years=(base.fiAge&&s.p.fiAge)?base.fiAge-s.p.fiAge:0;s.score=Math.max(0,s.gain65/100000)+Math.max(0,s.years)*2+Math.max(0,s.extraIncome/5000)-s.effort*.35});
+ scenarios.sort((a,b)=>b.score-a.score);const best=scenarios[0];
+ const realistic=scenarios.find(s=>s.name==='Ajouter 250 $/mois')||best;const accelerated=scenarios.find(s=>s.name==='Travailler 2 ans de plus')||scenarios[1]||best;
+ const gap=base.sustainable-input.desiredIncome,progress=Math.max(0,Math.min(100,base.sustainable/input.desiredIncome*100));
+ const status=gap>=0?'good':progress>=75?'mid':'bad';$('resultStatus').className='status '+status;$('resultStatus').textContent=gap>=0?'Objectif atteignable':'Objectif à améliorer';
+ $('resultHeadline').textContent=gap>=0?'Votre revenu de retraite estimé dépasse votre objectif.':'Il vous manque environ '+money(Math.abs(gap))+' par année.';
+ $('resultSummary').innerHTML='Avec votre rythme actuel, le revenu soutenable estimé est de <strong>'+money(base.sustainable)+'/an</strong>. Votre meilleur levier testé est <strong>'+best.name.toLowerCase()+'</strong>.';
+ $('goalBar').style.width=progress+'%';$('goalText').textContent=Math.round(progress)+' % de votre objectif de revenu est couvert.';
+ const rate=input.monthly*12/input.income*100;$('dashboard').innerHTML=`<div class="dash"><div class="k">Âge FI estimé</div><div class="v">${ageLabel(base.fiAge)}</div></div><div class="dash"><div class="k">Capital à la retraite</div><div class="v">${money(base.retirementCapital)}</div></div><div class="dash"><div class="k">Revenu retraite estimé</div><div class="v">${money(base.sustainable)}/an</div></div><div class="dash"><div class="k">Taux d'épargne</div><div class="v">${rate.toFixed(1)} %</div></div>`;
+ const planCard=(title,p,bestFlag=false)=>`<div class="plan ${bestFlag?'best':''}"><h3>${title}</h3><div class="big">${money(p.p.sustainable)}/an</div><p>Âge FI : <strong>${ageLabel(p.p.fiAge)}</strong></p><p>Capital retraite : <strong>${money(p.p.retirementCapital)}</strong></p></div>`;
+ $('plans').innerHTML=planCard('Plan actuel',{p:base})+planCard('Plan réaliste',realistic,realistic===best)+planCard('Plan accéléré',accelerated,accelerated===best);
+ $('actions').innerHTML=scenarios.slice(0,5).map((s,i)=>`<div class="action ${i===0?'best':''}"><div class="action-title">${i===0?'🥇 ':''}${s.name}</div><div class="action-metrics"><div class="metric"><span>Revenu supplémentaire</span><strong>${s.extraIncome>=0?'+':''}${money(s.extraIncome)}/an</strong></div><div class="metric"><span>Gain à 65 ans</span><strong>${s.gain65>=0?'+':''}${money(s.gain65)}</strong></div><div class="metric"><span>Âge FI</span><strong>${ageLabel(s.p.fiAge)}</strong></div></div></div>`).join('');
+ if(input.profile==='self'){
+  const months=input.businessCosts>0?input.businessCash/input.businessCosts:0;let checks=[];
+  checks.push({ok:months>=3,text:'Réserve d’entreprise : '+months.toFixed(1)+' mois de dépenses fixes.'});
+  checks.push({ok:input.taxReserve>=25,text:'Réserve d’impôt : '+input.taxReserve.toFixed(0)+' % du revenu net.'});
+  checks.push({ok:rate>=15,text:'Épargne personnelle : '+rate.toFixed(1)+' % du revenu du ménage.'});
+  checks.push({ok:true,text:'Ordre recommandé : réserve fiscale, réserve d’entreprise, puis virement automatique vers l’épargne retraite.'});
+  $('selfAdvice').innerHTML=checks.map(c=>`<div class="check"><b>${c.ok?'✓':'!'}</b><div>${c.text}</div></div>`).join('');$('selfAdviceCard').classList.remove('hidden');
+ }else $('selfAdviceCard').classList.add('hidden');
+ $('results').classList.remove('hidden');requestAnimationFrame(()=>drawChart(base,best.p));$('results').scrollIntoView({behavior:'smooth',block:'start'});
 }
-$('profile').addEventListener('change',()=>{$('selfFields').classList.toggle('hidden',$('profile').value!=='self')});$('simulateBtn').addEventListener('click',run);$('printBtn').addEventListener('click',()=>window.print());$('recalcBtn').addEventListener('click',()=>{window.scrollTo({top:0,behavior:'smooth'});$('age').focus()});window.addEventListener('resize',()=>{if(!$('results').hidden)run()});
+$('advancedToggle').addEventListener('click',()=>{const open=$('advancedPanel').classList.toggle('hidden')===false;$('advancedToggle').setAttribute('aria-expanded',String(open));$('advancedToggle').textContent=open?'Masquer les options avancées':'Affiner mon analyse'});
+$('profile').addEventListener('change',()=>{$('selfFields').classList.toggle('hidden',$('profile').value!=='self')});
+$('analyzeBtn').addEventListener('click',run);$('editBtn').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));$('printBtn').addEventListener('click',()=>window.print());
+window.addEventListener('resize',()=>{if(!$('results').classList.contains('hidden'))run()});
 })();
 </script>
 </body>
