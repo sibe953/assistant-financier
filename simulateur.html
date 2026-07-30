@@ -1,318 +1,107 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulateur - Assistant Financier</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --primary:#1e40af; --green:#15803d; --muted:#64748b; --border:#e2e8f0; }
-        * { box-sizing:border-box; }
-        body { font-family:'Inter',sans-serif; background:#f8fafc; color:#0f172a; margin:0; padding:20px; }
-        .container { max-width:1180px; margin:auto; }
-        .card { background:white; border-radius:20px; padding:30px; box-shadow:0 10px 30px rgba(15,23,42,.08); margin-bottom:25px; }
-        h1,h2,h3 { margin-top:0; }
-        .subtitle { color:var(--muted); margin-top:-8px; }
-        .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; }
-        label { display:block; font-weight:600; margin-bottom:7px; }
-        input { width:100%; padding:13px 14px; border:2px solid var(--border); border-radius:11px; font-size:1rem; }
-        input:focus { border-color:var(--primary); outline:none; box-shadow:0 0 0 3px rgba(30,64,175,.12); }
-        .btn { background:var(--primary); color:white; padding:16px; border:none; border-radius:12px; width:100%; cursor:pointer; font-size:1.08rem; font-weight:700; margin-top:20px; }
-        .btn:hover { filter:brightness(.92); }
-        .dashboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px; margin-bottom:25px; }
-        .dash-card { background:white; border-radius:16px; padding:22px; box-shadow:0 4px 15px rgba(15,23,42,.06); }
-        .dash-value { font-size:2rem; font-weight:700; color:var(--primary); margin:6px 0; }
-        .dash-label { color:var(--muted); font-size:.93rem; }
-        .scenario { padding:20px; border:2px solid var(--border); border-radius:16px; margin-bottom:14px; }
-        .best { border-color:#16a34a; background:#f0fdf4; }
-        .scenario-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(155px,1fr)); gap:12px; margin-top:14px; }
-        .metric { background:#f8fafc; border-radius:12px; padding:12px; }
-        .metric strong { display:block; font-size:1.12rem; margin-top:4px; }
-        .badge { display:inline-block; background:#dcfce7; color:#166534; padding:5px 9px; border-radius:999px; font-size:.8rem; font-weight:700; margin-left:8px; }
-        .lever { border-left:6px solid var(--green); background:#f0fdf4; }
-        .notice { color:#475569; font-size:.9rem; line-height:1.55; }
-        canvas { max-height:430px; }
-        @media (max-width:640px) { .card { padding:20px; } body { padding:12px; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Simulateur financier avancé</title>
+<style>
+:root{--primary:#2747b8;--green:#16803d;--text:#111827;--muted:#64748b;--border:#dbe3ef;--bg:#f6f8fb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);padding:18px}
+.container{max-width:1180px;margin:auto}.card{background:#fff;border-radius:20px;padding:28px;box-shadow:0 10px 30px rgba(15,23,42,.07);margin-bottom:24px}h1,h2,h3{margin-top:0}.subtitle{color:var(--muted)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}label{display:block;font-weight:700;margin-bottom:7px}input{width:100%;padding:13px 14px;border:2px solid var(--border);border-radius:11px;font-size:1rem;background:#fff}input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(39,71,184,.12)}
+.btn{width:100%;margin-top:20px;padding:16px;border:0;border-radius:12px;background:var(--primary);color:#fff;font-size:1.07rem;font-weight:800;cursor:pointer}.btn:hover{filter:brightness(.95)}.btn:disabled{opacity:.65;cursor:wait}
+.error{display:none;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:14px;border-radius:12px;margin-top:14px}.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:24px}.dash{background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 14px rgba(15,23,42,.06)}.label{color:var(--muted);font-size:.9rem}.value{font-size:1.8rem;font-weight:800;color:var(--primary);margin-top:6px}.lever{border-left:6px solid var(--green);background:#f0fdf4}.scenario{border:2px solid var(--border);padding:18px;border-radius:15px;margin:12px 0}.scenario.best{border-color:#22c55e;background:#f0fdf4}.badge{display:inline-block;background:#dcfce7;color:#166534;border-radius:999px;padding:4px 9px;font-size:.78rem;font-weight:800;margin-left:8px}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}.metric{background:#f8fafc;border-radius:10px;padding:11px}.metric strong{display:block;margin-top:4px}.chart-wrap{height:390px}.chart-wrap canvas{width:100%;height:100%}.notice{color:var(--muted);line-height:1.55;font-size:.92rem}.actions{display:flex;gap:12px;flex-wrap:wrap}.actions .btn{width:auto;flex:1;min-width:220px}.secondary{background:#475569}@media(max-width:640px){body{padding:10px}.card{padding:20px}.chart-wrap{height:300px}}
+@media print{body{background:#fff;padding:0}.input-card,.actions{display:none}.card,.dash{box-shadow:none;border:1px solid #ddd}#results{display:block!important}}
+</style>
 </head>
 <body>
 <div class="container">
-    <div class="card">
-        <h1>Simulateur financier avancé</h1>
-        <p class="subtitle">Comparez des décisions sur une même base et distinguez clairement indépendance financière et retraite.</p>
-        <div class="form-grid">
-            <div><label for="age">Âge actuel</label><input id="age" type="number" min="18" max="80" value="38"></div>
-            <div><label for="retirementAge">Âge de retraite souhaité</label><input id="retirementAge" type="number" min="40" max="90" value="65"></div>
-            <div><label for="income">Revenu annuel du ménage ($)</label><input id="income" type="number" min="0" value="145000"></div>
-            <div><label for="expenses">Dépenses annuelles actuelles ($)</label><input id="expenses" type="number" min="0" value="92000"></div>
-            <div><label for="savings">Épargne actuelle ($)</label><input id="savings" type="number" min="0" value="85000"></div>
-            <div><label for="monthly">Épargne mensuelle ($)</label><input id="monthly" type="number" min="0" value="1800"></div>
-            <div><label for="returnRate">Rendement annuel attendu (%)</label><input id="returnRate" type="number" min="0" max="15" step="0.1" value="6.5"></div>
-            <div><label for="inflationRate">Inflation annuelle (%)</label><input id="inflationRate" type="number" min="0" max="10" step="0.1" value="2.2"></div>
-        </div>
-        <button class="btn" onclick="runFullSimulation()">Trouver le meilleur scénario testé</button>
+  <section class="card input-card">
+    <h1>Simulateur financier avancé</h1>
+    <p class="subtitle">Comparez des décisions sur une même base et distinguez indépendance financière et retraite.</p>
+    <div class="form-grid">
+      <div><label for="age">Âge actuel</label><input id="age" type="number" min="18" max="80" value="38"></div>
+      <div><label for="retirementAge">Âge de retraite souhaité</label><input id="retirementAge" type="number" min="40" max="90" value="65"></div>
+      <div><label for="income">Revenu annuel du ménage ($)</label><input id="income" type="number" min="1" value="145000"></div>
+      <div><label for="expenses">Dépenses annuelles actuelles ($)</label><input id="expenses" type="number" min="1" value="92000"></div>
+      <div><label for="savings">Épargne actuelle ($)</label><input id="savings" type="number" min="0" value="85000"></div>
+      <div><label for="monthly">Épargne mensuelle ($)</label><input id="monthly" type="number" min="0" value="1800"></div>
+      <div><label for="returnRate">Rendement annuel attendu (%)</label><input id="returnRate" type="number" min="0" max="15" step="0.1" value="6.5"></div>
+      <div><label for="inflationRate">Inflation annuelle (%)</label><input id="inflationRate" type="number" min="0" max="10" step="0.1" value="2.2"></div>
     </div>
+    <button id="simulateBtn" class="btn" type="button">Trouver le meilleur scénario testé</button>
+    <div id="errorBox" class="error" role="alert"></div>
+  </section>
 
-    <div id="results" style="display:none;">
-        <div class="dashboard" id="dashboard"></div>
-
-        <div class="card lever">
-            <h2>🥇 Votre meilleur levier</h2>
-            <div id="bestLever"></div>
-        </div>
-
-        <div class="card">
-            <h2>Comparaison des scénarios</h2>
-            <p class="notice">Tous les scénarios sont comparés à 65 ans. Le classement combine patrimoine, années de FI gagnées et effort estimé.</p>
-            <div id="scenarios"></div>
-        </div>
-
-        <div class="card">
-            <h2>Projection actuelle vs meilleur scénario</h2>
-            <canvas id="chart"></canvas>
-        </div>
-
-        <div class="card">
-            <h2>Orientation REER / CELI</h2>
-            <div id="reerCeli" class="notice"></div>
-        </div>
-
-        <button class="btn" onclick="exportPDF()">📄 Exporter le rapport PDF</button>
-    </div>
+  <main id="results" hidden>
+    <div id="dashboard" class="dashboard"></div>
+    <section class="card lever"><h2>🥇 Votre meilleur levier</h2><div id="bestLever"></div></section>
+    <section class="card"><h2>Comparaison des scénarios</h2><p class="notice">Les scénarios sont comparés au même âge. Le résultat indique le meilleur parmi les options réellement testées.</p><div id="scenarios"></div></section>
+    <section class="card"><h2>Projection actuelle vs meilleur scénario</h2><div class="chart-wrap"><canvas id="wealthCanvas"></canvas></div></section>
+    <section class="card"><h2>Orientation REER / CELI</h2><p class="notice">Cette version ne calcule pas encore les droits réels ni la fiscalité québécoise. Elle ne produit donc aucune économie d’impôt personnalisée fictive.</p></section>
+    <div class="actions"><button id="printBtn" class="btn secondary" type="button">Imprimer / Enregistrer en PDF</button><button id="recalcBtn" class="btn" type="button">Modifier les données</button></div>
+  </main>
 </div>
-
 <script>
-    let currentData = {};
-    let chartInstance = null;
-
-    const money = value => Math.round(value).toLocaleString('fr-CA') + ' $';
-    const ageLabel = value => value === null ? 'Non atteint' : value + ' ans';
-
-    function projectScenario({
-        age,
-        startCapital,
-        monthlySave,
-        annualExpenses,
-        retirementAge,
-        returnRate,
-        inflationRate,
-        endAge = 95
-    }) {
-        let capital = startCapital;
-        let fiAge = null;
-        let capitalAtRetirement = null;
-        let capitalAt65 = null;
-        const timeline = [];
-
-        for (let year = 0; year <= endAge - age; year++) {
-            const currentAge = age + year;
-            const inflatedExpenses = annualExpenses * Math.pow(1 + inflationRate, year);
-            const fiTarget = inflatedExpenses * 25;
-
-            if (year > 0) {
-                capital *= (1 + returnRate);
-                if (currentAge <= retirementAge) {
-                    capital += monthlySave * 12;
-                } else {
-                    capital -= inflatedExpenses;
-                }
-                capital = Math.max(0, capital);
-            }
-
-            if (fiAge === null && capital >= fiTarget) fiAge = currentAge;
-            if (currentAge === retirementAge) capitalAtRetirement = capital;
-            if (currentAge === 65) capitalAt65 = capital;
-
-            timeline.push({ age: currentAge, capital, fiTarget, expenses: inflatedExpenses });
-        }
-
-        if (capitalAtRetirement === null) {
-            const point = timeline.find(p => p.age === retirementAge);
-            capitalAtRetirement = point ? point.capital : capital;
-        }
-        if (capitalAt65 === null) {
-            const point = timeline.find(p => p.age === 65);
-            capitalAt65 = point ? point.capital : capital;
-        }
-
-        return {
-            fiAge,
-            capitalAtRetirement,
-            capitalAt65,
-            capitalAt95: capital,
-            timeline
-        };
-    }
-
-    function normalizeScenarios(scenarios) {
-        const maxCapitalGain = Math.max(0, ...scenarios.map(s => s.gainCapital));
-        const maxYearsGained = Math.max(0, ...scenarios.map(s => s.yearsGained));
-
-        scenarios.forEach(s => {
-            const capitalScore = maxCapitalGain > 0 ? Math.max(0, s.gainCapital) / maxCapitalGain : 0;
-            const freedomScore = maxYearsGained > 0 ? Math.max(0, s.yearsGained) / maxYearsGained : 0;
-            const effortScore = 1 - Math.min(10, Math.max(0, s.effort)) / 10;
-            s.score = capitalScore * 0.50 + freedomScore * 0.40 + effortScore * 0.10;
-        });
-        return scenarios;
-    }
-
-    function financialScore({ savingsRate, fiAge, age, capitalAt65, targetAt65 }) {
-        let score = 0;
-        score += Math.min(30, savingsRate * 1.5);
-        if (fiAge !== null) score += fiAge < 60 ? 30 : fiAge <= 67 ? 22 : 12;
-        score += Math.min(25, (capitalAt65 / Math.max(targetAt65, 1)) * 25);
-        score += fiAge !== null && fiAge - age <= 20 ? 15 : 8;
-        return Math.round(Math.min(100, score));
-    }
-
-    function runFullSimulation() {
-        try {
-        const age = +document.getElementById('age').value;
-        const retirementAge = +document.getElementById('retirementAge').value;
-        const income = +document.getElementById('income').value;
-        const expenses = +document.getElementById('expenses').value;
-        const savings = +document.getElementById('savings').value;
-        const monthly = +document.getElementById('monthly').value;
-        const returnRate = +document.getElementById('returnRate').value / 100;
-        const inflationRate = +document.getElementById('inflationRate').value / 100;
-
-        if (![age, retirementAge, income, expenses, savings, monthly, returnRate, inflationRate].every(Number.isFinite) || income <= 0 || expenses <= 0 || retirementAge <= age) {
-            alert('Veuillez vérifier les données. L’âge de retraite doit être supérieur à l’âge actuel, et le revenu ainsi que les dépenses doivent être positifs.');
-            return;
-        }
-
-        const baseInput = { age, startCapital:savings, monthlySave:monthly, annualExpenses:expenses, retirementAge, returnRate, inflationRate };
-        const baseline = projectScenario(baseInput);
-
-        const definitions = [
-            { name:'Actuel', monthlySave:monthly, retirementAge, effort:0, effortLabel:'Aucun changement' },
-            { name:'+100 $/mois', monthlySave:monthly + 100, retirementAge, effort:2, effortLabel:'Faible ajustement budgétaire' },
-            { name:'+250 $/mois', monthlySave:monthly + 250, retirementAge, effort:4, effortLabel:'Ajustement budgétaire modéré' },
-            { name:'+500 $/mois', monthlySave:monthly + 500, retirementAge, effort:7, effortLabel:'Effort budgétaire élevé' },
-            { name:'Retraite +1 an', monthlySave:monthly, retirementAge:retirementAge + 1, effort:3, effortLabel:'Une année de travail supplémentaire' },
-            { name:'Retraite +2 ans', monthlySave:monthly, retirementAge:retirementAge + 2, effort:5, effortLabel:'Deux années de travail supplémentaires' }
-        ];
-
-        let scenarios = definitions.map(def => {
-            const projection = projectScenario({ ...baseInput, monthlySave:def.monthlySave, retirementAge:def.retirementAge });
-            return {
-                ...def,
-                ...projection,
-                gainCapital: projection.capitalAt65 - baseline.capitalAt65,
-                yearsGained: baseline.fiAge !== null && projection.fiAge !== null ? baseline.fiAge - projection.fiAge : 0
-            };
-        });
-
-        normalizeScenarios(scenarios);
-        const alternatives = scenarios.filter(s => s.name !== 'Actuel').sort((a,b) => b.score - a.score);
-        const best = alternatives[0];
-
-        const savingsRate = (monthly * 12 / income) * 100;
-        const expensesAt65 = expenses * Math.pow(1 + inflationRate, Math.max(0, 65 - age));
-        const targetAt65 = expensesAt65 * 25;
-        const score = financialScore({ savingsRate, fiAge:baseline.fiAge, age, capitalAt65:baseline.capitalAt65, targetAt65 });
-
-        document.getElementById('dashboard').innerHTML = `
-            <div class="dash-card"><div class="dash-label">⭐ Score financier</div><div class="dash-value">${score}/100</div></div>
-            <div class="dash-card"><div class="dash-label">Âge FI estimé</div><div class="dash-value">${ageLabel(baseline.fiAge)}</div></div>
-            <div class="dash-card"><div class="dash-label">Patrimoine à 65 ans</div><div class="dash-value">${money(baseline.capitalAt65)}</div></div>
-            <div class="dash-card"><div class="dash-label">Capital à la retraite</div><div class="dash-value">${money(baseline.capitalAtRetirement)}</div></div>
-            <div class="dash-card"><div class="dash-label">Taux d’épargne</div><div class="dash-value">${savingsRate.toFixed(1)}%</div></div>
-            <div class="dash-card"><div class="dash-label">Capital à 95 ans</div><div class="dash-value">${money(baseline.capitalAt95)}</div></div>
-        `;
-
-        document.getElementById('bestLever').innerHTML = `
-            <h3>${best.name}</h3>
-            <p><strong>Âge FI :</strong> ${ageLabel(baseline.fiAge)} → ${ageLabel(best.fiAge)}</p>
-            <p><strong>Gain de patrimoine à 65 ans :</strong> ${best.gainCapital >= 0 ? '+' : ''}${money(best.gainCapital)}</p>
-            <p><strong>Effort estimé :</strong> ${best.effortLabel}</p>
-            <p class="notice">Ce résultat signifie « meilleur parmi les scénarios testés », selon les hypothèses choisies.</p>
-        `;
-
-        const ranked = [scenarios.find(s => s.name === 'Actuel'), ...alternatives];
-        document.getElementById('scenarios').innerHTML = ranked.map(sc => `
-            <div class="scenario ${sc.name === best.name ? 'best' : ''}">
-                <strong>${sc.name}</strong>${sc.name === best.name ? '<span class="badge">Meilleur score</span>' : ''}
-                <div class="scenario-grid">
-                    <div class="metric">Âge FI<strong>${ageLabel(sc.fiAge)}</strong></div>
-                    <div class="metric">Capital à 65 ans<strong>${money(sc.capitalAt65)}</strong></div>
-                    <div class="metric">Gain à 65 ans<strong>${sc.gainCapital >= 0 ? '+' : ''}${money(sc.gainCapital)}</strong></div>
-                    <div class="metric">Années FI gagnées<strong>${sc.yearsGained > 0 ? sc.yearsGained : 0}</strong></div>
-                    <div class="metric">Score comparatif<strong>${Math.round(sc.score * 100)}/100</strong></div>
-                </div>
-            </div>
-        `).join('');
-
-        document.getElementById('reerCeli').innerHTML = `
-            <p><strong>Orientation éducative :</strong> le choix entre REER et CELI dépend notamment du taux d’imposition actuel, du taux prévu à la retraite, des droits disponibles et des objectifs de liquidité.</p>
-            <p>Cette version ne calcule pas encore les droits réels ni l’impôt québécois. Elle ne doit donc pas afficher une économie fiscale chiffrée comme si elle était personnalisée.</p>
-        `;
-
-        renderChart(baseline, best);
-
-        currentData = { age, retirementAge, income, expenses, savings, monthly, returnRate, inflationRate, baseline, best, score, savingsRate };
-        document.getElementById('results').style.display = 'block';
-        document.getElementById('results').scrollIntoView({ behavior:'smooth' });
-        } catch (error) {
-            console.error('Erreur de simulation :', error);
-            alert('Une erreur est survenue pendant la simulation : ' + error.message);
-        }
-    }
-
-    function renderChart(baseline, best) {
-        const ctx = document.getElementById('chart');
-        if (chartInstance) {
-            chartInstance.destroy();
-            chartInstance = null;
-        }
-
-        if (typeof Chart === 'undefined') {
-            ctx.insertAdjacentHTML('beforebegin', '<p class="notice">Le graphique n’a pas pu être chargé, mais les résultats de la simulation restent disponibles.</p>');
-            return;
-        }
-
-        chartInstance = new Chart(ctx, {
-            type:'line',
-            data:{
-                labels: baseline.timeline.map(p => p.age),
-                datasets:[
-                    { label:'Scénario actuel', data:baseline.timeline.map(p => Math.round(p.capital/1000)), borderColor:'#1e40af', backgroundColor:'rgba(30,64,175,.08)', fill:false, tension:.3, borderWidth:3 },
-                    { label:'Meilleur scénario testé', data:best.timeline.map(p => Math.round(p.capital/1000)), borderColor:'#15803d', backgroundColor:'rgba(21,128,61,.08)', fill:false, tension:.3, borderWidth:3 },
-                    { label:'Cible FI', data:baseline.timeline.map(p => Math.round(p.fiTarget/1000)), borderColor:'#94a3b8', borderDash:[7,7], tension:.2, borderWidth:2, pointRadius:0 }
-                ]
-            },
-            options:{
-                responsive:true,
-                interaction:{ mode:'index', intersect:false },
-                scales:{ y:{ beginAtZero:true, title:{ display:true, text:'Milliers de dollars' } }, x:{ title:{ display:true, text:'Âge' } } },
-                plugins:{ tooltip:{ callbacks:{ label:c => `${c.dataset.label}: ${Number(c.raw).toLocaleString('fr-CA')} k$` } } }
-            }
-        });
-    }
-
-    function exportPDF() {
-        if (!currentData.baseline) return;
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const d = currentData;
-        doc.setFontSize(19);
-        doc.text("Rapport de simulation financière", 20, 20);
-        doc.setFontSize(11);
-        doc.text(`Date : ${new Date().toLocaleDateString('fr-CA')}`, 20, 34);
-        doc.text(`Âge actuel : ${d.age} ans`, 20, 46);
-        doc.text(`Retraite souhaitée : ${d.retirementAge} ans`, 20, 56);
-        doc.text(`Score financier : ${d.score}/100`, 20, 66);
-        doc.text(`Âge FI estimé : ${ageLabel(d.baseline.fiAge)}`, 20, 76);
-        doc.text(`Patrimoine à 65 ans : ${money(d.baseline.capitalAt65)}`, 20, 86);
-        doc.text(`Meilleur scénario testé : ${d.best.name}`, 20, 101);
-        doc.text(`Gain à 65 ans : ${money(d.best.gainCapital)}`, 20, 111);
-        doc.setFontSize(9);
-        doc.text("Simulation éducative fondée sur des hypothèses fixes. Elle ne constitue pas un conseil financier.", 20, 130);
-        doc.save('Rapport_Financier.pdf');
-    }
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const fmtMoney=n=>Math.round(Number.isFinite(n)?n:0).toLocaleString('fr-CA')+' $';
+const fmtAge=n=>Number.isFinite(n)?n+' ans':'Non atteint';
+function readNumber(id){const raw=$(id).value.trim().replace(',','.');return Number(raw)}
+function project(input){
+ let capital=input.startCapital,fiAge=null,capitalAtRetirement=null,capitalAt65=null,timeline=[];
+ for(let year=0;year<=95-input.age;year++){
+   const currentAge=input.age+year;
+   const expenses=input.annualExpenses*Math.pow(1+input.inflationRate,year);
+   const target=expenses*25;
+   if(year>0){
+     capital*=1+input.returnRate;
+     if(currentAge<=input.retirementAge) capital+=input.monthlySave*12;
+     else capital-=expenses;
+     if(capital<0) capital=0;
+   }
+   if(fiAge===null&&capital>=target) fiAge=currentAge;
+   if(currentAge===input.retirementAge) capitalAtRetirement=capital;
+   if(currentAge===65) capitalAt65=capital;
+   timeline.push({age:currentAge,capital,target});
+ }
+ const findAge=a=>{const p=timeline.find(x=>x.age===a);return p?p.capital:null};
+ if(capitalAtRetirement===null) capitalAtRetirement=findAge(input.retirementAge)??capital;
+ if(capitalAt65===null) capitalAt65=findAge(65)??capital;
+ return{fiAge,capitalAtRetirement,capitalAt65,capitalAt95:capital,timeline};
+}
+function scoreScenarios(items){
+ const maxGain=Math.max(0,...items.map(x=>Math.max(0,x.gainCapital)));
+ const maxYears=Math.max(0,...items.map(x=>Math.max(0,x.yearsGained)));
+ items.forEach(x=>{const a=maxGain?Math.max(0,x.gainCapital)/maxGain:0;const b=maxYears?Math.max(0,x.yearsGained)/maxYears:0;const c=1-Math.min(10,Math.max(0,x.effort))/10;x.score=.5*a+.4*b+.1*c});
+}
+function financialScore(rate,projection,age,target65){let s=Math.min(30,rate*1.5);if(projection.fiAge!==null)s+=projection.fiAge<60?30:projection.fiAge<=67?22:12;s+=Math.min(25,(projection.capitalAt65/Math.max(1,target65))*25);s+=projection.fiAge!==null&&projection.fiAge-age<=20?15:8;return Math.round(Math.min(100,s))}
+function drawChart(base,best){
+ const canvas=$('wealthCanvas'),box=canvas.getBoundingClientRect(),dpr=window.devicePixelRatio||1;canvas.width=Math.max(600,box.width*dpr);canvas.height=Math.max(300,box.height*dpr);const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);const w=canvas.width/dpr,h=canvas.height/dpr,pad={l:62,r:20,t:24,b:44};ctx.clearRect(0,0,w,h);
+ const all=[...base.timeline.map(x=>x.capital),...best.timeline.map(x=>x.capital),...base.timeline.map(x=>x.target)];const max=Math.max(1,...all);const n=base.timeline.length;const X=i=>pad.l+i*(w-pad.l-pad.r)/(n-1);const Y=v=>h-pad.b-v*(h-pad.t-pad.b)/max;
+ ctx.strokeStyle='#dbe3ef';ctx.lineWidth=1;ctx.fillStyle='#64748b';ctx.font='12px system-ui';for(let i=0;i<=5;i++){const v=max*i/5,y=Y(v);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillText(Math.round(v/1000).toLocaleString('fr-CA')+'k',5,y+4)}
+ function line(data,color,dash){ctx.save();ctx.strokeStyle=color;ctx.lineWidth=3;ctx.setLineDash(dash||[]);ctx.beginPath();data.forEach((v,i)=>i?ctx.lineTo(X(i),Y(v)):ctx.moveTo(X(i),Y(v)));ctx.stroke();ctx.restore()}
+ line(base.timeline.map(x=>x.capital),'#2747b8');line(best.timeline.map(x=>x.capital),'#16803d');line(base.timeline.map(x=>x.target),'#94a3b8',[7,6]);
+ ctx.fillStyle='#334155';ctx.font='12px system-ui';for(let i=0;i<n;i+=Math.max(1,Math.floor(n/8)))ctx.fillText(base.timeline[i].age,X(i)-8,h-16);
+ ctx.fillStyle='#2747b8';ctx.fillRect(pad.l,6,18,3);ctx.fillStyle='#111827';ctx.fillText('Actuel',pad.l+25,11);ctx.fillStyle='#16803d';ctx.fillRect(pad.l+90,6,18,3);ctx.fillStyle='#111827';ctx.fillText('Optimisé',pad.l+115,11);ctx.strokeStyle='#94a3b8';ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(pad.l+205,8);ctx.lineTo(pad.l+223,8);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#111827';ctx.fillText('Cible FI',pad.l+230,11)
+}
+function run(){
+ const btn=$('simulateBtn'),error=$('errorBox');error.style.display='none';btn.disabled=true;btn.textContent='Calcul en cours…';
+ try{
+  const input={age:readNumber('age'),retirementAge:readNumber('retirementAge'),income:readNumber('income'),annualExpenses:readNumber('expenses'),startCapital:readNumber('savings'),monthlySave:readNumber('monthly'),returnRate:readNumber('returnRate')/100,inflationRate:readNumber('inflationRate')/100};
+  const vals=Object.values(input);if(!vals.every(Number.isFinite))throw new Error('Un ou plusieurs champs contiennent une valeur invalide.');if(input.age<18||input.retirementAge<=input.age)throw new Error('L’âge de retraite doit être supérieur à l’âge actuel.');if(input.income<=0||input.annualExpenses<=0)throw new Error('Le revenu et les dépenses doivent être supérieurs à zéro.');
+  const base=project(input);const defs=[{name:'Actuel',m:0,r:0,e:0,label:'Aucun changement'},{name:'+100 $/mois',m:100,r:0,e:2,label:'Faible ajustement budgétaire'},{name:'+250 $/mois',m:250,r:0,e:4,label:'Ajustement modéré'},{name:'+500 $/mois',m:500,r:0,e:7,label:'Effort budgétaire élevé'},{name:'Retraite +1 an',m:0,r:1,e:3,label:'Une année de travail supplémentaire'},{name:'Retraite +2 ans',m:0,r:2,e:5,label:'Deux années de travail supplémentaires'}];
+  const scenarios=defs.map(d=>{const p=project({...input,monthlySave:input.monthlySave+d.m,retirementAge:input.retirementAge+d.r});return{...d,...p,gainCapital:p.capitalAt65-base.capitalAt65,yearsGained:base.fiAge!==null&&p.fiAge!==null?base.fiAge-p.fiAge:0}});scoreScenarios(scenarios);const alternatives=scenarios.filter(x=>x.name!=='Actuel').sort((a,b)=>b.score-a.score);const best=alternatives[0];
+  const rate=input.monthlySave*12/input.income*100,target65=input.annualExpenses*Math.pow(1+input.inflationRate,Math.max(0,65-input.age))*25,score=financialScore(rate,base,input.age,target65);
+  $('dashboard').innerHTML=`<div class="dash"><div class="label">⭐ Score financier</div><div class="value">${score}/100</div></div><div class="dash"><div class="label">Âge FI estimé</div><div class="value">${fmtAge(base.fiAge)}</div></div><div class="dash"><div class="label">Patrimoine à 65 ans</div><div class="value">${fmtMoney(base.capitalAt65)}</div></div><div class="dash"><div class="label">Capital à la retraite</div><div class="value">${fmtMoney(base.capitalAtRetirement)}</div></div><div class="dash"><div class="label">Taux d’épargne</div><div class="value">${rate.toFixed(1)}%</div></div><div class="dash"><div class="label">Capital à 95 ans</div><div class="value">${fmtMoney(base.capitalAt95)}</div></div>`;
+  $('bestLever').innerHTML=`<h3>${best.name}</h3><p><strong>Âge FI :</strong> ${fmtAge(base.fiAge)} → ${fmtAge(best.fiAge)}</p><p><strong>Gain à 65 ans :</strong> ${best.gainCapital>=0?'+':''}${fmtMoney(best.gainCapital)}</p><p><strong>Effort estimé :</strong> ${best.label}</p>`;
+  const ordered=[scenarios[0],...alternatives];$('scenarios').innerHTML=ordered.map(s=>`<div class="scenario ${s===best?'best':''}"><strong>${s.name}</strong>${s===best?'<span class="badge">Meilleur score</span>':''}<div class="metrics"><div class="metric">Âge FI<strong>${fmtAge(s.fiAge)}</strong></div><div class="metric">Capital à 65 ans<strong>${fmtMoney(s.capitalAt65)}</strong></div><div class="metric">Gain à 65 ans<strong>${s.gainCapital>=0?'+':''}${fmtMoney(s.gainCapital)}</strong></div><div class="metric">Années FI gagnées<strong>${Math.max(0,s.yearsGained)}</strong></div><div class="metric">Score comparatif<strong>${Math.round(s.score*100)}/100</strong></div></div></div>`).join('');
+  $('results').hidden=false;requestAnimationFrame(()=>drawChart(base,best));$('results').scrollIntoView({behavior:'smooth',block:'start'});
+ }catch(err){error.textContent=err.message||'Erreur inattendue.';error.style.display='block';console.error(err)}finally{btn.disabled=false;btn.textContent='Trouver le meilleur scénario testé'}
+}
+$('simulateBtn').addEventListener('click',run);$('printBtn').addEventListener('click',()=>window.print());$('recalcBtn').addEventListener('click',()=>{window.scrollTo({top:0,behavior:'smooth'});$('age').focus()});window.addEventListener('resize',()=>{if(!$('results').hidden)run()});
+})();
 </script>
 </body>
 </html>
