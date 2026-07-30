@@ -3,87 +3,302 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulateur Financier</title>
+    <title>Simulateur - Assistant Financier</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f7fa; padding: 20px; }
-        .card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 1000px; margin: 20px auto; }
-        input { padding: 10px; width: 100%; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; }
-        button { background: #1e40af; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; width: 100%; margin-top: 15px; }
-        #results { display: none; margin-top: 20px; }
+        :root { --primary:#1e40af; --green:#15803d; --muted:#64748b; --border:#e2e8f0; }
+        * { box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#f8fafc; color:#0f172a; margin:0; padding:20px; }
+        .container { max-width:1180px; margin:auto; }
+        .card { background:white; border-radius:20px; padding:30px; box-shadow:0 10px 30px rgba(15,23,42,.08); margin-bottom:25px; }
+        h1,h2,h3 { margin-top:0; }
+        .subtitle { color:var(--muted); margin-top:-8px; }
+        .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; }
+        label { display:block; font-weight:600; margin-bottom:7px; }
+        input { width:100%; padding:13px 14px; border:2px solid var(--border); border-radius:11px; font-size:1rem; }
+        input:focus { border-color:var(--primary); outline:none; box-shadow:0 0 0 3px rgba(30,64,175,.12); }
+        .btn { background:var(--primary); color:white; padding:16px; border:none; border-radius:12px; width:100%; cursor:pointer; font-size:1.08rem; font-weight:700; margin-top:20px; }
+        .btn:hover { filter:brightness(.92); }
+        .dashboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px; margin-bottom:25px; }
+        .dash-card { background:white; border-radius:16px; padding:22px; box-shadow:0 4px 15px rgba(15,23,42,.06); }
+        .dash-value { font-size:2rem; font-weight:700; color:var(--primary); margin:6px 0; }
+        .dash-label { color:var(--muted); font-size:.93rem; }
+        .scenario { padding:20px; border:2px solid var(--border); border-radius:16px; margin-bottom:14px; }
+        .best { border-color:#16a34a; background:#f0fdf4; }
+        .scenario-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(155px,1fr)); gap:12px; margin-top:14px; }
+        .metric { background:#f8fafc; border-radius:12px; padding:12px; }
+        .metric strong { display:block; font-size:1.12rem; margin-top:4px; }
+        .badge { display:inline-block; background:#dcfce7; color:#166534; padding:5px 9px; border-radius:999px; font-size:.8rem; font-weight:700; margin-left:8px; }
+        .lever { border-left:6px solid var(--green); background:#f0fdf4; }
+        .notice { color:#475569; font-size:.9rem; line-height:1.55; }
+        canvas { max-height:430px; }
+        @media (max-width:640px) { .card { padding:20px; } body { padding:12px; } }
     </style>
 </head>
 <body>
+<div class="container">
     <div class="card">
-        <h1>Simulateur Financier Avancé</h1>
-        
-        <label>Âge :</label>
-        <input type="number" id="age" value="52">
-        
-        <label>Revenu ménage ($) :</label>
-        <input type="number" id="income" value="140000">
-        
-        <label>Dépenses annuelles ($) :</label>
-        <input type="number" id="expenses" value="12000">
-        
-        <label>Épargne actuelle ($) :</label>
-        <input type="number" id="savings" value="1200">
-        
-        <label>Épargne mensuelle ($) :</label>
-        <input type="number" id="monthly" value="1000">
-        
-        <button onclick="lancerSimulation()">Lancer l'analyse complète</button>
+        <h1>Simulateur financier avancé</h1>
+        <p class="subtitle">Comparez des décisions sur une même base et distinguez clairement indépendance financière et retraite.</p>
+        <div class="form-grid">
+            <div><label for="age">Âge actuel</label><input id="age" type="number" min="18" max="80" value="38"></div>
+            <div><label for="retirementAge">Âge de retraite souhaité</label><input id="retirementAge" type="number" min="40" max="90" value="65"></div>
+            <div><label for="income">Revenu annuel du ménage ($)</label><input id="income" type="number" min="0" value="145000"></div>
+            <div><label for="expenses">Dépenses annuelles actuelles ($)</label><input id="expenses" type="number" min="0" value="92000"></div>
+            <div><label for="savings">Épargne actuelle ($)</label><input id="savings" type="number" min="0" value="85000"></div>
+            <div><label for="monthly">Épargne mensuelle ($)</label><input id="monthly" type="number" min="0" value="1800"></div>
+            <div><label for="returnRate">Rendement annuel attendu (%)</label><input id="returnRate" type="number" min="0" max="15" step="0.1" value="6.5"></div>
+            <div><label for="inflationRate">Inflation annuelle (%)</label><input id="inflationRate" type="number" min="0" max="10" step="0.1" value="2.2"></div>
+        </div>
+        <button class="btn" onclick="runFullSimulation()">Trouver le meilleur scénario testé</button>
     </div>
 
-    <div id="results" class="card">
-        <h2>Résultats</h2>
-        <div id="output"></div>
-        <canvas id="chart" height="180"></canvas>
-    </div>
+    <div id="results" style="display:none;">
+        <div class="dashboard" id="dashboard"></div>
 
-    <script>
-        function lancerSimulation() {
-            const age = parseFloat(document.getElementById('age').value) || 52;
-            const expenses = parseFloat(document.getElementById('expenses').value) || 12000;
-            const savings = parseFloat(document.getElementById('savings').value) || 1200;
-            const monthly = parseFloat(document.getElementById('monthly').value) || 1000;
-            
-            const annualSave = monthly * 12;
-            let capital = savings;
-            let years = 0;
-            
-            while (capital < expenses * 25 && years < 50) {
-                capital = capital * 1.065 + annualSave;
-                years++;
+        <div class="card lever">
+            <h2>🥇 Votre meilleur levier</h2>
+            <div id="bestLever"></div>
+        </div>
+
+        <div class="card">
+            <h2>Comparaison des scénarios</h2>
+            <p class="notice">Tous les scénarios sont comparés à 65 ans. Le classement combine patrimoine, années de FI gagnées et effort estimé.</p>
+            <div id="scenarios"></div>
+        </div>
+
+        <div class="card">
+            <h2>Projection actuelle vs meilleur scénario</h2>
+            <canvas id="chart"></canvas>
+        </div>
+
+        <div class="card">
+            <h2>Orientation REER / CELI</h2>
+            <div id="reerCeli" class="notice"></div>
+        </div>
+
+        <button class="btn" onclick="exportPDF()">📄 Exporter le rapport PDF</button>
+    </div>
+</div>
+
+<script>
+    let currentData = {};
+
+    const money = value => Math.round(value).toLocaleString('fr-CA') + ' $';
+    const ageLabel = value => value === null ? 'Non atteint' : value + ' ans';
+
+    function projectScenario({
+        age,
+        startCapital,
+        monthlySave,
+        annualExpenses,
+        retirementAge,
+        returnRate,
+        inflationRate,
+        endAge = 95
+    }) {
+        let capital = startCapital;
+        let fiAge = null;
+        let capitalAtRetirement = null;
+        let capitalAt65 = null;
+        const timeline = [];
+
+        for (let year = 0; year <= endAge - age; year++) {
+            const currentAge = age + year;
+            const inflatedExpenses = annualExpenses * Math.pow(1 + inflationRate, year);
+            const fiTarget = inflatedExpenses * 25;
+
+            if (year > 0) {
+                capital *= (1 + returnRate);
+                if (currentAge <= retirementAge) {
+                    capital += monthlySave * 12;
+                } else {
+                    capital -= inflatedExpenses;
+                }
+                capital = Math.max(0, capital);
             }
-            
-            const fiAge = Math.round(age + years);
-            
-            document.getElementById('output').innerHTML = `
-                <p><strong>Âge d'indépendance financière :</strong> ${fiAge} ans</p>
-                <p><strong>Patrimoine estimé :</strong> ${(capital / 1000000).toFixed(2)} M$</p>
-                <p><strong>Taux d'épargne :</strong> ${Math.round((annualSave / 140000) * 100)}%</p>
-            `;
-            
-            document.getElementById('results').style.display = 'block';
-            
-            // Graphique
-            const ctx = document.getElementById('chart');
-            if (window.myChart) window.myChart.destroy();
-            window.myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: Array.from({length: 20}, (_, i) => age + i),
-                    datasets: [{
-                        label: 'Évolution du patrimoine',
-                        data: Array.from({length: 20}, (_, i) => Math.round(savings * Math.pow(1.065, i) + annualSave * i)),
-                        borderColor: '#1e40af',
-                        tension: 0.3
-                    }]
-                },
-                options: { responsive: true }
-            });
+
+            if (fiAge === null && capital >= fiTarget) fiAge = currentAge;
+            if (currentAge === retirementAge) capitalAtRetirement = capital;
+            if (currentAge === 65) capitalAt65 = capital;
+
+            timeline.push({ age: currentAge, capital, fiTarget, expenses: inflatedExpenses });
         }
-    </script>
+
+        if (capitalAtRetirement === null) {
+            const point = timeline.find(p => p.age === retirementAge);
+            capitalAtRetirement = point ? point.capital : capital;
+        }
+        if (capitalAt65 === null) {
+            const point = timeline.find(p => p.age === 65);
+            capitalAt65 = point ? point.capital : capital;
+        }
+
+        return {
+            fiAge,
+            capitalAtRetirement,
+            capitalAt65,
+            capitalAt95: capital,
+            timeline
+        };
+    }
+
+    function normalizeScenarios(scenarios) {
+        const maxCapitalGain = Math.max(0, ...scenarios.map(s => s.gainCapital));
+        const maxYearsGained = Math.max(0, ...scenarios.map(s => s.yearsGained));
+
+        scenarios.forEach(s => {
+            const capitalScore = maxCapitalGain > 0 ? Math.max(0, s.gainCapital) / maxCapitalGain : 0;
+            const freedomScore = maxYearsGained > 0 ? Math.max(0, s.yearsGained) / maxYearsGained : 0;
+            const effortScore = 1 - Math.min(10, Math.max(0, s.effort)) / 10;
+            s.score = capitalScore * 0.50 + freedomScore * 0.40 + effortScore * 0.10;
+        });
+        return scenarios;
+    }
+
+    function financialScore({ savingsRate, fiAge, age, capitalAt65, targetAt65 }) {
+        let score = 0;
+        score += Math.min(30, savingsRate * 1.5);
+        if (fiAge !== null) score += fiAge < 60 ? 30 : fiAge <= 67 ? 22 : 12;
+        score += Math.min(25, (capitalAt65 / Math.max(targetAt65, 1)) * 25);
+        score += fiAge !== null && fiAge - age <= 20 ? 15 : 8;
+        return Math.round(Math.min(100, score));
+    }
+
+    function runFullSimulation() {
+        const age = +document.getElementById('age').value;
+        const retirementAge = +document.getElementById('retirementAge').value;
+        const income = +document.getElementById('income').value;
+        const expenses = +document.getElementById('expenses').value;
+        const savings = +document.getElementById('savings').value;
+        const monthly = +document.getElementById('monthly').value;
+        const returnRate = +document.getElementById('returnRate').value / 100;
+        const inflationRate = +document.getElementById('inflationRate').value / 100;
+
+        if (![age, retirementAge, income, expenses, savings, monthly, returnRate, inflationRate].every(Number.isFinite) || income <= 0 || expenses <= 0 || retirementAge <= age) {
+            alert('Veuillez vérifier les données. L’âge de retraite doit être supérieur à l’âge actuel, et le revenu ainsi que les dépenses doivent être positifs.');
+            return;
+        }
+
+        const baseInput = { age, startCapital:savings, monthlySave:monthly, annualExpenses:expenses, retirementAge, returnRate, inflationRate };
+        const baseline = projectScenario(baseInput);
+
+        const definitions = [
+            { name:'Actuel', monthlySave:monthly, retirementAge, effort:0, effortLabel:'Aucun changement' },
+            { name:'+100 $/mois', monthlySave:monthly + 100, retirementAge, effort:2, effortLabel:'Faible ajustement budgétaire' },
+            { name:'+250 $/mois', monthlySave:monthly + 250, retirementAge, effort:4, effortLabel:'Ajustement budgétaire modéré' },
+            { name:'+500 $/mois', monthlySave:monthly + 500, retirementAge, effort:7, effortLabel:'Effort budgétaire élevé' },
+            { name:'Retraite +1 an', monthlySave:monthly, retirementAge:retirementAge + 1, effort:3, effortLabel:'Une année de travail supplémentaire' },
+            { name:'Retraite +2 ans', monthlySave:monthly, retirementAge:retirementAge + 2, effort:5, effortLabel:'Deux années de travail supplémentaires' }
+        ];
+
+        let scenarios = definitions.map(def => {
+            const projection = projectScenario({ ...baseInput, monthlySave:def.monthlySave, retirementAge:def.retirementAge });
+            return {
+                ...def,
+                ...projection,
+                gainCapital: projection.capitalAt65 - baseline.capitalAt65,
+                yearsGained: baseline.fiAge !== null && projection.fiAge !== null ? baseline.fiAge - projection.fiAge : 0
+            };
+        });
+
+        normalizeScenarios(scenarios);
+        const alternatives = scenarios.filter(s => s.name !== 'Actuel').sort((a,b) => b.score - a.score);
+        const best = alternatives[0];
+
+        const savingsRate = (monthly * 12 / income) * 100;
+        const expensesAt65 = expenses * Math.pow(1 + inflationRate, Math.max(0, 65 - age));
+        const targetAt65 = expensesAt65 * 25;
+        const score = financialScore({ savingsRate, fiAge:baseline.fiAge, age, capitalAt65:baseline.capitalAt65, targetAt65 });
+
+        document.getElementById('dashboard').innerHTML = `
+            <div class="dash-card"><div class="dash-label">⭐ Score financier</div><div class="dash-value">${score}/100</div></div>
+            <div class="dash-card"><div class="dash-label">Âge FI estimé</div><div class="dash-value">${ageLabel(baseline.fiAge)}</div></div>
+            <div class="dash-card"><div class="dash-label">Patrimoine à 65 ans</div><div class="dash-value">${money(baseline.capitalAt65)}</div></div>
+            <div class="dash-card"><div class="dash-label">Capital à la retraite</div><div class="dash-value">${money(baseline.capitalAtRetirement)}</div></div>
+            <div class="dash-card"><div class="dash-label">Taux d’épargne</div><div class="dash-value">${savingsRate.toFixed(1)}%</div></div>
+            <div class="dash-card"><div class="dash-label">Capital à 95 ans</div><div class="dash-value">${money(baseline.capitalAt95)}</div></div>
+        `;
+
+        document.getElementById('bestLever').innerHTML = `
+            <h3>${best.name}</h3>
+            <p><strong>Âge FI :</strong> ${ageLabel(baseline.fiAge)} → ${ageLabel(best.fiAge)}</p>
+            <p><strong>Gain de patrimoine à 65 ans :</strong> ${best.gainCapital >= 0 ? '+' : ''}${money(best.gainCapital)}</p>
+            <p><strong>Effort estimé :</strong> ${best.effortLabel}</p>
+            <p class="notice">Ce résultat signifie « meilleur parmi les scénarios testés », selon les hypothèses choisies.</p>
+        `;
+
+        const ranked = [scenarios.find(s => s.name === 'Actuel'), ...alternatives];
+        document.getElementById('scenarios').innerHTML = ranked.map(sc => `
+            <div class="scenario ${sc.name === best.name ? 'best' : ''}">
+                <strong>${sc.name}</strong>${sc.name === best.name ? '<span class="badge">Meilleur score</span>' : ''}
+                <div class="scenario-grid">
+                    <div class="metric">Âge FI<strong>${ageLabel(sc.fiAge)}</strong></div>
+                    <div class="metric">Capital à 65 ans<strong>${money(sc.capitalAt65)}</strong></div>
+                    <div class="metric">Gain à 65 ans<strong>${sc.gainCapital >= 0 ? '+' : ''}${money(sc.gainCapital)}</strong></div>
+                    <div class="metric">Années FI gagnées<strong>${sc.yearsGained > 0 ? sc.yearsGained : 0}</strong></div>
+                    <div class="metric">Score comparatif<strong>${Math.round(sc.score * 100)}/100</strong></div>
+                </div>
+            </div>
+        `).join('');
+
+        document.getElementById('reerCeli').innerHTML = `
+            <p><strong>Orientation éducative :</strong> le choix entre REER et CELI dépend notamment du taux d’imposition actuel, du taux prévu à la retraite, des droits disponibles et des objectifs de liquidité.</p>
+            <p>Cette version ne calcule pas encore les droits réels ni l’impôt québécois. Elle ne doit donc pas afficher une économie fiscale chiffrée comme si elle était personnalisée.</p>
+        `;
+
+        renderChart(baseline, best);
+
+        currentData = { age, retirementAge, income, expenses, savings, monthly, returnRate, inflationRate, baseline, best, score, savingsRate };
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('results').scrollIntoView({ behavior:'smooth' });
+    }
+
+    function renderChart(baseline, best) {
+        const ctx = document.getElementById('chart');
+        if (window.chart) window.chart.destroy();
+
+        window.chart = new Chart(ctx, {
+            type:'line',
+            data:{
+                labels: baseline.timeline.map(p => p.age),
+                datasets:[
+                    { label:'Scénario actuel', data:baseline.timeline.map(p => Math.round(p.capital/1000)), borderColor:'#1e40af', backgroundColor:'rgba(30,64,175,.08)', fill:false, tension:.3, borderWidth:3 },
+                    { label:'Meilleur scénario testé', data:best.timeline.map(p => Math.round(p.capital/1000)), borderColor:'#15803d', backgroundColor:'rgba(21,128,61,.08)', fill:false, tension:.3, borderWidth:3 },
+                    { label:'Cible FI', data:baseline.timeline.map(p => Math.round(p.fiTarget/1000)), borderColor:'#94a3b8', borderDash:[7,7], tension:.2, borderWidth:2, pointRadius:0 }
+                ]
+            },
+            options:{
+                responsive:true,
+                interaction:{ mode:'index', intersect:false },
+                scales:{ y:{ beginAtZero:true, title:{ display:true, text:'Milliers de dollars' } }, x:{ title:{ display:true, text:'Âge' } } },
+                plugins:{ tooltip:{ callbacks:{ label:c => `${c.dataset.label}: ${Number(c.raw).toLocaleString('fr-CA')} k$` } } }
+            }
+        });
+    }
+
+    function exportPDF() {
+        if (!currentData.baseline) return;
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const d = currentData;
+        doc.setFontSize(19);
+        doc.text("Rapport de simulation financière", 20, 20);
+        doc.setFontSize(11);
+        doc.text(`Date : ${new Date().toLocaleDateString('fr-CA')}`, 20, 34);
+        doc.text(`Âge actuel : ${d.age} ans`, 20, 46);
+        doc.text(`Retraite souhaitée : ${d.retirementAge} ans`, 20, 56);
+        doc.text(`Score financier : ${d.score}/100`, 20, 66);
+        doc.text(`Âge FI estimé : ${ageLabel(d.baseline.fiAge)}`, 20, 76);
+        doc.text(`Patrimoine à 65 ans : ${money(d.baseline.capitalAt65)}`, 20, 86);
+        doc.text(`Meilleur scénario testé : ${d.best.name}`, 20, 101);
+        doc.text(`Gain à 65 ans : ${money(d.best.gainCapital)}`, 20, 111);
+        doc.setFontSize(9);
+        doc.text("Simulation éducative fondée sur des hypothèses fixes. Elle ne constitue pas un conseil financier.", 20, 130);
+        doc.save('Rapport_Financier.pdf');
+    }
+</script>
 </body>
 </html>

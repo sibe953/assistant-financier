@@ -1,6 +1,6 @@
 # Assistant Financier Personnel
 
-Outil gratuit de planification financière
+Outil gratuit de planification financière inspiré de ffPro.ca
 
 ## Fonctionnalités
 - Calcul d'indépendance financière
